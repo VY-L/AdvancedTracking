@@ -87,7 +87,7 @@ __on_player_breaks_block(player, block)-> (
         // print('group ' + group);
         if(!check_player_in_area(player~'pos', group:'area'), continue());
         // print('group area check passed');
-        for(group:'components', (
+        for(group:'trackers', (
             tracker = _;
             // print(tracker);
             if(check_block_interaction_match_tracker(tracker, player, block), print('valid'));

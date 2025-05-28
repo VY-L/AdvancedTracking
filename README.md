@@ -36,7 +36,7 @@ MCDR plugin used to track customary items
                 "z_min":-10, 
                 "z_max":10
             }, 
-            "components": [
+            "trackers": [
                 {
                     "item": "item_name", 
                     "area": {
