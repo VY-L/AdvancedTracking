@@ -8,11 +8,11 @@ MCDR plugin used to track customary player events
 1. Use carpetscript to track player actions with specific limits
    - Actions
      - [ ] Block placement
-     - [ ] Block breaking
+     - [x] Block breaking
      - [ ] non-AFK time
    - Limits
-     - [ ] Area (by player position)
-     - [ ] block_type
+     - [x] Area (by player position)
+     - [x] block_type
      - [ ] playerID
 2. Create scoreboards based on the trackers
    - [ ] Weighted sum
