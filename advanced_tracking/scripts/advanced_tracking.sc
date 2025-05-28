@@ -1,19 +1,25 @@
 global_DATA_PATH = 'advanced_tracking/';
 
-load_trackers(path) ->(global_trackers = read_file(path + 'trackers', 'shared_json'););
+
+// Tracking System
+
+load_trackers(path) ->(
+    if(slice(path, length(path)-1) != '/', path += '/');
+    global_trackers = read_file(path + 'trackers', 'shared_json');
+);
 
 load_data(path) ->(
     if(slice(path, length(path)-1) != '/', path += '/');
     global_tracking_data = {};
     data_path = path + 'tracked_data/';
     file_lst = list_files(data_path, 'shared_json');
-    print(file_lst);
+    // print(file_lst);
     for(file_lst, (
         player_file_path = _;
         player_uuid = slice(player_file_path, length(data_path));
-        print(player_file_path);
-        print(length(data_path));
-        print(player_uuid);
+        // print(player_file_path);
+        // print(length(data_path));
+        // print(player_uuid);
         global_tracking_data:player_uuid = read_file(player_file_path, 'shared_json');
     ));
 );
@@ -24,7 +30,7 @@ save_data(path, players=null) -> (
     if(players==null, players = global_tracking_data);
     for(players, (
         uuid=_~'uuid';
-        print('saving + '+uuid);
+        // print('saving + '+uuid);
         write_file(data_path+uuid, 'shared_json', global_tracking_data:uuid)
     ));
 );
@@ -61,8 +67,6 @@ check_player_in_area(pos, area) -> (
     return(true);
 );
 
-
-
 check_block_interaction_match_tracker(tracker, player, block) -> (
     // check area
     if(!check_player_in_area(player~'pos', tracker:'area'), return(false));
@@ -75,13 +79,6 @@ check_block_interaction_match_tracker(tracker, player, block) -> (
 
     return(true);
 );
-
-
-__on_start() -> (
-    load_trackers(global_DATA_PATH);
-    load_data(global_DATA_PATH);
-);
-
 
 increment_tracker(tracker_name, player) -> (
     // global_tracking_data:(player ~ 'uuid'):'trackers':tracker_name += 1;
@@ -101,7 +98,10 @@ update_block_tracker(player, block, tracker_type) -> (
         for(group:'trackers', (
             tracker = _;
             // print(tracker);
-            if(check_block_interaction_match_tracker(tracker, player, block), increment_tracker(tracker:'tracker', player));
+            if(check_block_interaction_match_tracker(tracker, player, block), (
+                increment_tracker(tracker:'tracker', player);
+                update_scoreboards(tracker:'scoreboards', player)
+            ));
         ))
     ));
 );
@@ -116,6 +116,56 @@ check_player_profile(player, path=null) -> (
     ), 
     globa_tracking_data:(player~'uuid'):'player_ID' = player;
     )
+);
+
+
+// Scoreboard System
+load_scoreboard(objective, display) -> (
+    print('objective ' + objective);
+    print('display_name ' + display);
+    if(scoreboard()~objective == null, scoreboard_add(objective));
+    scoreboard_property(objective, 'display_name', display)
+);
+
+load_scoreboards(path) -> (
+    if(slice(path, length(path)-1) != '/', path += '/');
+    global_scoreboards = read_file(path + 'scoreboards', 'shared_json');
+    //initialize and update displaynames for objectives
+    for(global_scoreboards, (
+        objective = _;
+        display = global_scoreboards:objective:'display_name';
+        load_scoreboard(objective, display);
+    ))
+);
+
+update_scoreboard(objective, player) -> (
+    // print(objective);
+    // print(player);
+    scoreboard_config = global_scoreboards:objective;
+    if(scoreboard_config:'mode' == 'weighted_sum', (
+        acc=0.0;
+        for(scoreboard_config:'trackers', (
+            tracker = _;
+            tracker_id=tracker:'tracker_id';
+            weight = tracker:'weight';
+            // print(tracker_id);
+            // print(weight);
+            acc += (global_tracking_data:(player ~ 'uuid'):'trackers':tracker_id)*weight;
+        ));
+        scoreboard(objective, player, acc)
+    ))
+    
+);
+
+update_scoreboards(objectives, player) -> (
+    for(objectives, update_scoreboard(_, player))
+);
+
+
+__on_start() -> (
+    load_trackers(global_DATA_PATH);
+    load_data(global_DATA_PATH);
+    load_scoreboards(global_DATA_PATH)
 );
 
 __on_player_breaks_block(player, block)-> (

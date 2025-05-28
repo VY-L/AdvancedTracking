@@ -30,7 +30,7 @@ MCDR plugin used to track customary player events
 ```json
 {
     "player_break_blocks": {
-        "group_name": {
+        "group_id": {
             "area": {
                 "x_min":-10, 
                 "x_max":10, 
@@ -39,7 +39,7 @@ MCDR plugin used to track customary player events
             }, 
             "trackers": [
                 {
-                    "tracker": "tracker_name", 
+                    "tracker": "tracker_id", 
                     "area": {
                         "x_min":-10, 
                         "x_max":10, 
@@ -70,7 +70,23 @@ MCDR plugin used to track customary player events
 {
     "player_ID":"__VY__", 
     "trackers": {
-        "tracker_name": 0
+        "tracker_id": 0
+    }
+}
+```
+### scoreboard configuration
+#### **`scoreboards`**: 
+```json
+{
+    "scoreboard_id": {
+        "display_name": "Scoreboard Display", 
+        "mode": "weighted_sum", 
+        "trackers": [
+            {
+                "tracjer_id": "tracker_id", 
+                "weight":1
+            }
+        ]
     }
 }
 ```
