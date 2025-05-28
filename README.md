@@ -22,6 +22,7 @@ MCDR plugin used to track customary items
 ## Other TODOs
 - Lang
 - Usages, How It works in README.md
+- Variable update mechanisms
 
 ## Data schemes
 ### tracker structure
