@@ -1,5 +1,5 @@
 # AdvancedTracking
-MCDR plugin used to track customary items
+MCDR plugin used to track customary player events
 
 **English**
 
@@ -39,7 +39,7 @@ MCDR plugin used to track customary items
             }, 
             "trackers": [
                 {
-                    "item": "item_name", 
+                    "tracker": "tracker_name", 
                     "area": {
                         "x_min":-10, 
                         "x_max":10, 
@@ -69,8 +69,8 @@ MCDR plugin used to track customary items
 ```json
 {
     "player_ID":"__VY__", 
-    "items": {
-        "item_name": 0
+    "trackers": {
+        "tracker_name": 0
     }
 }
 ```
