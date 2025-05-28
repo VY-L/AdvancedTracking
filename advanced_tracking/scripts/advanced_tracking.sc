@@ -5,12 +5,16 @@ load_trackers(path) ->(global_trackers = read_file(path + 'trackers', 'shared_js
 load_data(path) ->(
     if(slice(path, length(path)-1) != '/', path += '/');
     global_tracking_data = {};
-    file_lst = list_files(path, 'shared_json');
+    data_path = path + 'tracked_data/';
+    file_lst = list_files(data_path, 'shared_json');
     print(file_lst);
     for(file_lst, (
-        path = _;
-        player_uuid = slice(_, length(path));
-        global_tracking_data:player_uuid = read_file(path, 'shared_json');
+        player_file_path = _;
+        player_uuid = slice(player_file_path, length(data_path));
+        print(player_file_path);
+        print(length(data_path));
+        print(player_uuid);
+        global_tracking_data:player_uuid = read_file(player_file_path, 'shared_json');
     ));
 );
 
@@ -40,8 +44,8 @@ check_block_in_list(block, list) -> (
 );
 
 check_player_in_area(pos, area) -> (
-    print(pos);
-    print(area);
+    // print(pos);
+    // print(area);
     [x, y, z] = pos;
     if(area:'x_min' != null, if(area:'x_min' > x, return(false)));
     if(area:'x_max' != null, if(area:'x_max' < x, return(false)));
@@ -51,7 +55,7 @@ check_player_in_area(pos, area) -> (
     
     if(area:'z_min' != null, if(area:'z_min' > z, return(false)));
     if(area:'z_max' != null, if(area:'z_max' < z, return(false)));
-    print(true);
+    // print(true);
     return(true);
 );
 
@@ -80,12 +84,12 @@ __on_player_breaks_block(player, block)-> (
     //iterate through groups
     for(global_trackers:'player_break_blocks', (
         group = global_trackers:'player_break_blocks':_;
-        print('group ' + group);
+        // print('group ' + group);
         if(!check_player_in_area(player~'pos', group:'area'), continue());
         // print('group area check passed');
         for(group:'components', (
             tracker = _;
-            print(tracker);
+            // print(tracker);
             if(check_block_interaction_match_tracker(tracker, player, block), print('valid'));
         ))
     ));
