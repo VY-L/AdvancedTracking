@@ -22,3 +22,54 @@ MCDR plugin used to track customary items
 ## Other TODOs
 - Lang
 - Usages, How It works in README.md
+
+## Data schemes
+### tracker structure
+#### **`trackers.json`**: 
+```json
+{
+    "player_break_blocks": {
+        "group_name": {
+            "area": {
+                "x_min":-10, 
+                "x_max":10, 
+                "z_min":-10, 
+                "z_max":10
+            }, 
+            "components": [
+                {
+                    "item": "item_name", 
+                    "area": {
+                        "x_min":-10, 
+                        "x_max":10, 
+                        "z_min":-10, 
+                        "z_max":10
+                    }, 
+                    "specs":{
+                        "block_type":{
+                            "whitelist": {}, 
+                            "blacklist": {
+                                "smooth_stone_slab": [
+                                    {"type":"bottom"}, 
+                                    {"type":"top", "waterlogged":true}
+                                ]
+                            }, 
+                            "mode": "blacklist"
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}
+```
+### player tracking data
+#### **`example_uuid.json`**: 
+```json
+{
+    "player_ID":"__VY__", 
+    "items": {
+        "item_name": 0
+    }
+}
+```
