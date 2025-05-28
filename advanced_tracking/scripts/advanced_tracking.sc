@@ -119,9 +119,13 @@ check_player_profile(player, path=null) -> (
 );
 
 __on_player_breaks_block(player, block)-> (
-    update_block_tracker(player, block, 'player_break_blocks')
+    update_block_tracker(player, block, 'player_break_blocks');
+);
+
+__on_player_places_block(player, item_tuple, hand, block)->(
+    update_block_tracker(player, block, 'player_place_blocks');
 );
 
 __on_player_connects(player)-> (
-    check_player_profile(player, global_DATA_PATH)
-)
+    check_player_profile(player, global_DATA_PATH);
+);
