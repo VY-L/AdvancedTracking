@@ -1,0 +1,11 @@
+{
+    "id": "advanced_tracking",
+    "version": "0.0.0",
+    "name": "Advanced Tracking",
+    "description": "Provides advanced custom Tracking features for Minecraft using Carpet Script.",
+    "author": "__VY__",
+    "link": "https://github.com/VY-L/AdvancedTracking",
+    "dependencies": {
+        "mcdreforged": ">=2.0.0-alpha.1"
+    }
+}
