@@ -1,6 +1,7 @@
 from mcdreforged.plugin.si.plugin_server_interface import PluginServerInterface
 from mcdreforged.plugin.si.server_interface import ServerInterface
 from mcdreforged.utils.serializer import Serializable
+from typing import Dict, List
 import os
 import shutil
 
@@ -40,20 +41,44 @@ class PermissionConfig(Serializable):
 class Config(Serializable):
     permissions: PermissionConfig = PermissionConfig()
 
-# class ScriptManager():
-#     def __init__(self, server:PluginServerInterface, plugin_path:str = R"plugins\AdvancedTracking", server_path = R"server"):
-#         self.server:PluginServerInterface = server
-#         self.plugin_path:str = plugin_path
-#         self.server_path:str = server_path
+
+
+
+class ScoreboardManager():
+    def __init__(self, server:PluginServerInterface):
+        self.server:PluginServerInterface = server
+        self.load()
+        
+    def load(self):
+        self.scoreboards = self.server.load_config_simple("scoreboards.json", default_config = {})
+        
+    def add_scoreboard(self): 
+        pass
+    
+    
+
+class TrackerManager():
+    def __init__(self):
+        pass
+
+
+
+class ScriptManager():
+    def __init__(self, server:PluginServerInterface, plugin_path:str = R"plugins\AdvancedTracking", server_path = R"server"):
+        self.server:PluginServerInterface = server
+        self.plugin_path:str = plugin_path
+        self.server_path:str = server_path
+        
     
 
 def on_load(server:PluginServerInterface, prev):
-    global config
-    config = server.load_config_simple(target_class=Config)
-    global script_loader
-    script_loader = ScriptLoader(server, script_src=R"plugins\advancedTracking\Advanced_tracking\scripts", script_dst=R"server\world\scripts")
-    script_loader.reload_all()
-    print("Advanced Tracking loaded")
+    # global config
+    # config = server.load_config_simple(target_class=Config)
+    # global script_loader
+    # script_loader = ScriptLoader(server, script_src=R"plugins\advancedTracking\Advanced_tracking\scripts", script_dst=R"server\world\scripts")
+    # script_loader.reload_all()
+    # print("Advanced Tracking loaded")
+    # print(ssC.serialize())
 
 
     
