@@ -26,9 +26,11 @@ class ScriptLoader():
     
     def reload_scoreboards(self):
         shutil.copy(os.path.join(self.data_src, "scoreboards.json"), os.path.join(self.data_dst, "scoreboards.json"))
+        self.server.execute("script in advaned_tracking run load_scoreboards(global_DATA_PATH)")
         
     def reload_trackers(self):
         shutil.copy(os.path.join(self.data_src, "trackers.json"), os.path.join(self.data_dst, "trackers.json"))
+        self.server.execute("script in advaned_tracking run load_trackers(global_DATA_PATH)")
 
 
 
@@ -38,13 +40,12 @@ class PermissionConfig(Serializable):
 class Config(Serializable):
     permissions: PermissionConfig = PermissionConfig()
 
-
-# def load_scripts(server: ServerInterface, src=R'plugins\advancedTracking\Advanced_tracking\scripts', dst=R'server\world\scripts'):
-#     # print(os.listdir(src))
-#     # print(os.listdir(dst))
-#     shutil.copytree(src, dst, dirs_exist_ok=True)
-#     server.execute("script load advanced_tracking global")
-
+# class ScriptManager():
+#     def __init__(self, server:PluginServerInterface, plugin_path:str = R"plugins\AdvancedTracking", server_path = R"server"):
+#         self.server:PluginServerInterface = server
+#         self.plugin_path:str = plugin_path
+#         self.server_path:str = server_path
+    
 
 def on_load(server:PluginServerInterface, prev):
     global config
