@@ -67,12 +67,11 @@ check_player_in_area(pos, area) -> (
     return(true);
 );
 
-check_block_interaction_match_tracker(tracker, player, block) -> (
+check_block_interaction_match_component(component, player, block) -> (
     // check area
-    if(!check_player_in_area(player~'pos', tracker:'area'), return(false));
+    if(!check_player_in_area(player~'pos', component:'area'), return(false));
     
-    specs = tracker:'specs';
-    block_type_restrictions = specs:'block_type';
+    block_type_restrictions = component:'block_type';
 
     if(block_type_restrictions:'mode'=='whitelist', if(check_block_in_list(block, block_type_restrictions:'whitelist')==false, return(false)));
     if(block_type_restrictions:'mode'=='blacklist', if(check_block_in_list(block, block_type_restrictions:'blacklist'), return(false)));
@@ -98,10 +97,14 @@ update_block_tracker(player, block, tracker_type) -> (
         for(group:'trackers', (
             tracker = _;
             // print(tracker);
-            if(check_block_interaction_match_tracker(tracker, player, block), (
-                increment_tracker(tracker:'tracker', player);
-                update_scoreboards(tracker:'scoreboards', player)
-            ));
+            if(!check_player_in_area(player~'pos', tracker:'area'), continue());
+            for(tracker:'components', (
+                component = tracker:'components':_;
+                if(check_block_interaction_match_component(component, player, block), (
+                    increment_tracker(tracker:'tracker', player);
+                    update_scoreboards(tracker:'scoreboards', player)
+                ));
+            ))
         ))
     ));
 );
