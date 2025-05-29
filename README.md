@@ -46,16 +46,24 @@ MCDR plugin used to track customary player events
                         "z_min":-10, 
                         "z_max":10
                     }, 
-                    "specs":{
-                        "block_type":{
-                            "whitelist": {}, 
-                            "blacklist": {
-                                "smooth_stone_slab": [
-                                    {"type":"bottom"}, 
-                                    {"type":"top", "waterlogged":true}
-                                ]
+                    "components":{
+                        "1":{
+                            "area": {
+                                "x_min":-10, 
+                                "x_max":10, 
+                                "z_min":-10, 
+                                "z_max":10
                             }, 
-                            "mode": "blacklist"
+                            "block_type":{
+                                "whitelist": {}, 
+                                "blacklist": {
+                                    "smooth_stone_slab": [
+                                        {"type":"bottom"}, 
+                                        {"type":"top", "waterlogged":true}
+                                    ]
+                                }, 
+                                "mode": "blacklist"
+                            }
                         }
                     }
                 }
