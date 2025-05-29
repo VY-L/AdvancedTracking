@@ -1,7 +1,7 @@
 from mcdreforged.plugin.si.plugin_server_interface import PluginServerInterface
 from mcdreforged.plugin.si.server_interface import ServerInterface
 from mcdreforged.utils.serializer import Serializable
-from typing import Dict, List
+from typing import Dict, List, Optional
 import os
 import shutil
 
@@ -18,7 +18,7 @@ class ScriptLoader():
         self.data_dst:str = os.path.join(self.script_dst, R"shared\advanced_tracking")
         self.server:ServerInterface = server
     
-    def _copy_data():
+    def copy_data():
         pass
     
     def reload_all(self):
@@ -44,16 +44,88 @@ class Config(Serializable):
 
 
 
+class Scoreboard:
+    '''
+    A scoreboard class
+    
+    should load and save into config files
+    
+    '''
+    def __init__(self, objective:str, display_name:Optional[str] = None, mode:str="weighted_sum"):
+        if display_name is None:
+            display_name = objective
+        self.id:str = objective
+        self.display_name:str = display_name
+        self.mode:str = mode
+        self.trackers:List[TrackerScoreboardConfig] = []
+    
+    def to_script(self):
+        '''
+        used to generate the json file that the carpet script uses
+        '''
+        tracker_dicts = map(lambda tsc: tsc.to_script, self.trackers)
+        return self.id, {
+            "display_name": self.display_name, 
+            "mode": self.mode, 
+            "trackers": tracker_dicts
+        }
+
+    
+class TrackerComponent:
+    def __init__():
+        pass
+    def to_string():
+        pass
+
+class Tracker:
+    '''
+    Tracker Class
+    '''
+    def __init__(self, tracker_id:str, area:Optional[Dict[str, int]]=None):
+        if area is None:
+            area = {}
+        self.id = tracker_id
+        self.area=area
+        self.components:Dict[str, TrackerComponent] = {}
+
+    def to_script(self):
+        '''
+        used to generate the json file that the car
+        '''
+        component_dict = {component_name:self.components[component_name].to_script() for component_name in self.components}
+        return {
+            "tracker": self.id, 
+            "area": self.area, 
+            "components": component_dict
+        }
+
+class TrackerScoreboardConfig:
+    '''
+    records a tracker and its weight inside a scoreboard
+    '''
+    def __init__(self, tracker:Tracker, weight:int=1):
+        self.tracker:Tracker = tracker
+        self.weight:int = weight
+    def to_script(self) -> Dict:
+        '''
+        used to generate the json file that the carpet script uses
+        '''
+        return {"tracker_id":self.tracker.id, "weight":self.weight}
+    
+
 class ScoreboardManager():
-    def __init__(self, server:PluginServerInterface):
+    def __init__(self, server:PluginServerInterface, script_loader:ScriptLoader):
+        self.script_loader = script_loader
         self.server:PluginServerInterface = server
         self.load()
         
     def load(self):
         self.scoreboards = self.server.load_config_simple("scoreboards.json", default_config = {})
         
-    def add_scoreboard(self): 
-        pass
+    def add_scoreboard(self, objective:str, display_name:str, trackers=[]):
+         pass
+        
+    
     
     
 
@@ -69,6 +141,7 @@ class ScriptManager():
         self.plugin_path:str = plugin_path
         self.server_path:str = server_path
         
+        
     
 
 def on_load(server:PluginServerInterface, prev):
@@ -79,7 +152,9 @@ def on_load(server:PluginServerInterface, prev):
     # script_loader.reload_all()
     # print("Advanced Tracking loaded")
     # print(ssC.serialize())
-
+    global script_manager
+    script_manager = ScriptManager(server)
+    
 
     
     
