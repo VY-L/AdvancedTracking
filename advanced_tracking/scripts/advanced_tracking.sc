@@ -95,13 +95,14 @@ update_block_tracker(player, block, tracker_type) -> (
         if(!check_player_in_area(player~'pos', group:'area'), continue());
         // print('group area check passed');
         for(group:'trackers', (
-            tracker = _;
+            tracker_id = _;
+            tracker = group:'trackers':tracker_id;
             // print(tracker);
             if(!check_player_in_area(player~'pos', tracker:'area'), continue());
             for(tracker:'components', (
                 component = tracker:'components':_;
                 if(check_block_interaction_match_component(component, player, block), (
-                    increment_tracker(tracker:'tracker', player);
+                    increment_tracker(tracker_id, player);
                     update_scoreboards(tracker:'scoreboards', player)
                 ));
             ))
