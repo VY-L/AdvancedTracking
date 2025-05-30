@@ -64,7 +64,7 @@ class Scoreboard:
         used to generate the json file that the carpet script uses
         '''
         tracker_dicts = map(lambda tsc: tsc.to_script, self.trackers)
-        return self.id, {
+        return {
             "display_name": self.display_name, 
             "mode": self.mode, 
             "trackers": tracker_dicts
@@ -72,9 +72,9 @@ class Scoreboard:
 
     
 class TrackerComponent:
-    def __init__():
+    def __init__(self):
         pass
-    def to_string():
+    def to_script(self):
         pass
 
 class Tracker:
@@ -94,7 +94,7 @@ class Tracker:
         '''
         component_dict = {component_name:self.components[component_name].to_script() for component_name in self.components}
         return {
-            "tracker": self.id, 
+            # "tracker": self.id, 
             "area": self.area, 
             "components": component_dict
         }
@@ -155,8 +155,4 @@ def on_load(server:PluginServerInterface, prev):
     global script_manager
     script_manager = ScriptManager(server)
     
-
-    
-    
-
 
