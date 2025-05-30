@@ -72,10 +72,15 @@ class Scoreboard:
 
     
 class TrackerComponent:
-    def __init__(self):
-        pass
+    def __init__(self, id:str, area:Dict[str, int], block_type:Dict):
+        self.id:str = id
+        self.area:Dict[str, int] = area
+        self.block_type:Dict = block_type
     def to_script(self):
-        pass
+        return {
+            "area": self.area, 
+            "block_type": self.block_type
+        }
 
 class Tracker:
     '''
@@ -112,6 +117,7 @@ class TrackerScoreboardConfig:
         '''
         return {"tracker_id":self.tracker.id, "weight":self.weight}
     
+
 
 class ScoreboardManager():
     def __init__(self, server:PluginServerInterface, script_loader:ScriptLoader):
