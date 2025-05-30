@@ -220,6 +220,23 @@ class TrackerRegistry:
         if tracker_id in self.trackers:
             del self.trackers[tracker_id]
 
+    def serialize(self) -> Dict:
+        return {
+            "trackers": [t.serialize() for t in self.tracker_registry.all()],
+            "scoreboards": [s.serialize() for s in self.scoreboard_registry.all()]
+        }
+
+    @classmethod
+    def deserialize(cls, data: Dict) -> Self:
+        instance = cls()
+        instance.reset()
+        for t_data in data.get("trackers", []):
+            tracker = Tracker.deserialize(t_data)
+            instance.tracker_registry.add(tracker)
+        for s_data in data.get("scoreboards", []):
+            scoreboard = Scoreboard.deserialize(s_data)
+            instance.scoreboard_registry.add(scoreboard)
+        return instance
 
 class ScoreboardRegistry:
     """Singleton-like registry for all Scoreboard instances."""
@@ -245,13 +262,53 @@ class ScoreboardRegistry:
         if scoreboard_id in self.scoreboards:
             del self.scoreboards[scoreboard_id]
 
+    def serialize(self) -> Dict:
+        return {
+            "scoreboards": [sb.serialize() for sb in self.scoreboards.values()]
+        }
+
+    @classmethod
+    def deserialize(cls, data: Dict) -> Self:
+        instance = cls()
+        instance.scoreboards.clear()
+        for sb_data in data.get("scoreboards", []):
+            sb = Scoreboard.deserialize(sb_data)
+            instance.add(sb)
+        return instance
 
 
-class ScriptManager():
-    def __init__(self, server:PluginServerInterface, plugin_path:str = R"plugins\AdvancedTracking", server_path = R"server"):
-        self.server:PluginServerInterface = server
-        self.plugin_path:str = plugin_path
-        self.server_path:str = server_path
+# class ScriptManager():
+#     def __init__(self, server:PluginServerInterface, plugin_path:str = R"plugins\AdvancedTracking", server_path = R"server"):
+#         self.server:PluginServerInterface = server
+#         self.plugin_path:str = plugin_path
+#         self.server_path:str = server_path
+
+
+class TrackingManager:
+    """Singleton manager for all plugin operations, trackers, and scoreboards."""
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance.tracker_registry = TrackerRegistry()
+            cls._instance.scoreboard_registry = ScoreboardRegistry()
+            # Add more initialization as needed
+        return cls._instance
+
+    @property
+    def trackers(self) -> TrackerRegistry:
+        return self.tracker_registry
+
+    @property
+    def scoreboards(self) -> ScoreboardRegistry:
+        return self.scoreboard_registry
+
+    # Example: high-level method to reset all registries
+    def reset(self):
+        self.tracker_registry.trackers.clear()
+        self.scoreboard_registry.scoreboards.clear()
+
         
         
     
