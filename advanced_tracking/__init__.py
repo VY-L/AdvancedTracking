@@ -277,22 +277,22 @@ class ScoreboardRegistry:
         return instance
 
 
-# class ScriptManager():
-#     def __init__(self, server:PluginServerInterface, plugin_path:str = R"plugins\AdvancedTracking", server_path = R"server"):
-#         self.server:PluginServerInterface = server
-#         self.plugin_path:str = plugin_path
-#         self.server_path:str = server_path
 
 
-class TrackingManager:
+class AdvancedTrackingManager:
     """Singleton manager for all plugin operations, trackers, and scoreboards."""
     _instance = None
-
+    initialized: bool = False
+    tracker_registry: TrackerRegistry
+    scoreboard_registry: ScoreboardRegistry
+    script_loader: ScriptLoader
+    config: Config
+    server: PluginServerInterface
+    
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
-            cls._instance.tracker_registry = TrackerRegistry()
-            cls._instance.scoreboard_registry = ScoreboardRegistry()
+            cls.initialized = True
             # Add more initialization as needed
         return cls._instance
 
@@ -303,14 +303,17 @@ class TrackingManager:
     @property
     def scoreboards(self) -> ScoreboardRegistry:
         return self.scoreboard_registry
+    
+    def init(self, server:PluginServerInterface):
+        if self.initialized:
+            pass
+        self.server = server
+        self.script_loader = ScriptLoader(server, script_src=os.path.join(PLUGIN_PATH, "scripts"), script_dst=os.path.join(SERVER_PATH, "world", "scripts"))
+        self.tracker_registry = TrackerRegistry.deserialize(server.load_config_simple("trackers"))
+        self.scoreboard_registry = ScoreboardRegistry.deserialize(server.load_config_simple("scoreboards"))
+        self.config = server.load_config_simple(target_class=Config)
 
-    # Example: high-level method to reset all registries
-    def reset(self):
-        self.tracker_registry.trackers.clear()
-        self.scoreboard_registry.scoreboards.clear()
 
-        
-        
     
 
 def on_load(server:PluginServerInterface, prev):
@@ -321,7 +324,8 @@ def on_load(server:PluginServerInterface, prev):
     # script_loader.reload_all()
     # print("Advanced Tracking loaded")
     # print(ssC.serialize())
-    global script_manager
-    script_manager = ScriptManager(server)
+    # global script_manager
+    # script_manager = ScriptManager(server)
+    pass
     
 
