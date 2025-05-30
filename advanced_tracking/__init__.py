@@ -1,7 +1,8 @@
 from mcdreforged.plugin.si.plugin_server_interface import PluginServerInterface
 from mcdreforged.plugin.si.server_interface import ServerInterface
 from mcdreforged.utils.serializer import Serializable
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Type
+from typing_extensions import Self
 import os
 import shutil
 
@@ -69,6 +70,40 @@ class Scoreboard:
             "mode": self.mode, 
             "trackers": tracker_dicts
         }
+    
+    def serialize(self) -> Dict:
+        return {
+            "id": self.id,
+            "display_name": self.display_name,
+            "mode": self.mode,
+            "trackers": [tracker.serialize() if hasattr(tracker, "serialize") else {
+                "tracker_id": tracker.tracker.id if hasattr(tracker, "tracker") else None,
+                "weight": tracker.weight if hasattr(tracker, "weight") else None
+            } for tracker in self.trackers]
+        }
+    
+    @classmethod
+    def deserialize(cls, data:Dict) -> "TrackerComponent":
+        return cls(
+            id=data["id"],
+            area=data.get("area", {}),
+            block_type=data.get("block_type", {})
+        )
+    
+    def serialize(self) -> Dict:
+        return {
+            "id": self.id,
+            "area": self.area,
+            "block_type": self.block_type
+        }
+
+    @classmethod
+    def deserialize(cls, data:Dict) -> "TrackerComponent":
+        return cls(
+            id=data["id"],
+            area=data.get("area", {}),
+            block_type=data.get("block_type", {})
+        )
 
     
 class TrackerComponent:
@@ -103,6 +138,19 @@ class Tracker:
             "area": self.area, 
             "components": component_dict
         }
+    
+    def serialize(self) -> Dict:
+        return {
+            "id": self.id,
+            "area": self.area,
+            "components": {name: comp.serialize() for name, comp in self.components.items()}
+        }
+
+    @classmethod
+    def deserialize(cls, data:Dict) -> "Tracker":
+        tracker = cls(tracker_id=data["id"], area=data.get("area", {}))
+        tracker.components = {name: TrackerComponent.deserialize(comp) for name, comp in data.get("components", {}).items()}
+        return tracker
 
 class TrackerScoreboardConfig:
     '''
@@ -117,27 +165,85 @@ class TrackerScoreboardConfig:
         '''
         return {"tracker_id":self.tracker.id, "weight":self.weight}
     
+    def serialize(self) -> Dict:
+        return {
+            "tracker": self.tracker.serialize(),
+            "weight": self.weight
+        }
+
+    @classmethod
+    def deserialize(cls, data:Dict) -> "TrackerScoreboardConfig":
+        tracker = Tracker.deserialize(data["tracker"])
+        weight = data.get("weight", 1)
+        return cls(tracker=tracker, weight=weight)
+    
+    def serialize(self) -> Dict:
+        return {
+            "id": self.id,
+            "display_name": self.display_name,
+            "mode": self.mode,
+            "trackers": [tracker.serialize() for tracker in self.trackers]
+        }
+
+    @classmethod
+    def deserialize(cls:Type[Self], data:Dict) -> "Scoreboard":
+        obj = cls(
+            objective=data["id"],
+            display_name=data.get("display_name"),
+            mode=data.get("mode", "weighted_sum")
+        )
+        obj.trackers = [TrackerScoreboardConfig.deserialize(t) for t in data.get("trackers", [])]
+        return obj
 
 
-class ScoreboardManager():
-    def __init__(self, server:PluginServerInterface, script_loader:ScriptLoader):
-        self.script_loader = script_loader
-        self.server:PluginServerInterface = server
-        self.load()
-        
-    def load(self):
-        self.scoreboards = self.server.load_config_simple("scoreboards.json", default_config = {})
-        
-    def add_scoreboard(self, objective:str, display_name:str, trackers=[]):
-         pass
-        
-    
-    
-    
+class TrackerRegistry:
+    """Singleton-like registry for all Tracker instances."""
+    _instance = None
+    trackers: Dict[str, Tracker]
 
-class TrackerManager():
-    def __init__(self):
-        pass
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance.trackers = {}
+        return cls._instance
+
+    def add(self, tracker: Tracker):
+        self.trackers[tracker.id] = tracker
+
+    def get(self, tracker_id: str) -> Optional[Tracker]:
+        return self.trackers.get(tracker_id)
+
+    def all(self) -> List[Tracker]:
+        return list(self.trackers.values())
+
+    def remove(self, tracker_id: str):
+        if tracker_id in self.trackers:
+            del self.trackers[tracker_id]
+
+
+class ScoreboardRegistry:
+    """Singleton-like registry for all Scoreboard instances."""
+    _instance = None
+    scoreboards: Dict[str, Scoreboard]
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance.scoreboards = {}
+        return cls._instance
+
+    def add(self, scoreboard: Scoreboard):
+        self.scoreboards[scoreboard.id] = scoreboard
+
+    def get(self, scoreboard_id: str) -> Optional[Scoreboard]:
+        return self.scoreboards.get(scoreboard_id)
+
+    def all(self) -> List[Scoreboard]:
+        return list(self.scoreboards.values())
+
+    def remove(self, scoreboard_id: str):
+        if scoreboard_id in self.scoreboards:
+            del self.scoreboards[scoreboard_id]
 
 
 
