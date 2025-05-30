@@ -23,6 +23,7 @@ MCDR plugin used to track customary player events
 - Lang
 - Usages, How It works in README.md
 - Variable update mechanisms
+- add type for Area, BlockType
 
 ## Data schemes
 ### tracker structure
