@@ -19,6 +19,48 @@ MCDR plugin used to track customary player events
 3. Use MCDR as user interface to manage tracking system
 
 
+## Usage
+
+### Commands
+
+Base command : `!!at`
+
+`!!at clicker` to enter click-to-use version gui
+
+`!!at tracker add <tracker_name> <tracker_type>`
+
+`!!at tracker add <tracker_name> preset <preset_name> ...`
+
+`!!at component add <tracker_name> <component_name>`
+
+`!!at component area <tracker_name> <component_name> single <attr> <value>`
+
+`!!at component area <tracker_name> <component_name> cuboid <x1> <y1> <z1> <x2> <y2> <z2>`
+
+`!!at component area <tracker_name> <component_name> rectangle <x1> <z1> <x2> <z2>`
+
+`!!at component block_type <tracker_name> <component_name> blacklist set <blacklist>`
+
+`!!at component block_type <tracker_name> <component_name> whitelist set <ehitelist>`
+
+`!!at component block_type <tracker_name> <component_name> blacklist add <instance>`
+
+`!!at component block_type <tracker_name> <component_name> whitelist add <instance>`
+
+`!!at tracker delete <tracker_name>` Note: this will clear all data too
+
+
+`!!at scoreboard create <scoreboard_name>`
+
+`!!at scoreboard create <scoreboard_name> <"Display Name">`
+
+`!!at scoreboard create <scoreboard_name> <"Display Name"> <tracker_name>`
+
+`!!at scoreboard preset <preset_name> <scoreboard_name> ...`
+
+`!!at scoreboard add <scoreboard_name> <tracker_name> weight`
+
+
 ## Other TODOs
 - Lang
 - Usages, How It works in README.md
