@@ -15,11 +15,25 @@ MCDR plugin used to track customary player events
      - [x] block_type
      - [ ] playerID
 2. Create scoreboards based on the trackers
-   - [ ] Weighted sum
+   - [ ] Weighted sums
 3. Use MCDR as user interface to manage tracking system
 
 
 ## Usage
+
+### Understanding structure
+
+This plugin manages two things: Scoreboards and trackers
+
+Scoreboards are always hooked up to in-game scoreboard objectives, currently with only one mode: the weighted sum of multiple trackers. Every scoreboard has the following attributes: objective, Display_name and key-value pairs of trackers and their weight
+
+Trackers tracker specific actions. They are organized into groups but only for optimization (that I dont even know if it worths it). Every tracker falls into a tracker category, currently only implemented player_break_blocks, and player_place_blocks. They would have a tracker_id; an area, in which behavior may be counted (again for optimization), and components. Each component, again will have an area, in which behavior is considered, and a block_type filter, which is a whitelist or blacklist of blocks that would count. You can also whitelist/blacklist specific blockstates, see the example data schemes for more.
+
+For example, if I have a project with a machine built in a perimeter, I may have a tracker called "trenchDigging", having 4 components, for each trench since each component's area can only be a cuboid. Then I may have another "obyDigging" tracker with only 1 component, recording the amount of obsidian each player dug within the perimeter. Then, there may be a "MachineBuilding" tracker for the placement of blocks within the machine, and a "DecoBuilding" Tracker to track the contribution towards building the decoration.
+
+Then, you may create dedicated scoreboards for each tracker, and also probably a total scoreboard, as the general "contribution" to the whole project
+
+For many of these repeating patters, there would be presets such as for trenches. Using such a preset, say "trench_preset", the plugin can automaticly create a tracker with 4 components, recording the blocks dug within the trench. This is also (when I finish) the recommended way of creating trackers.
 
 ### Commands
 
