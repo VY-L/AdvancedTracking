@@ -35,31 +35,32 @@ Then, you may create dedicated scoreboards for each tracker, and also probably a
 
 For many of these repeating patters, there would be presets such as for trenches. Using such a preset, say "trench_preset", the plugin can automaticly create a tracker with 4 components, recording the blocks dug within the trench. This is also (when I finish) the recommended way of creating trackers.
 
+
 ### Commands
 
 Base command : `!!at`
 
 `!!at clicker` to enter click-to-use version gui
 
-`!!at tracker add <tracker_name> <tracker_type>`
+`!!at tracker add <tracker_name> <tracker_type>` create an empty tracker
 
-`!!at tracker add <tracker_name> preset <preset_name> ...`
+`!!at tracker add <tracker_name> preset <preset_name> ...` create a tracker by a preset
 
-`!!at component add <tracker_name> <component_name>`
+`!!at component add <tracker_name> <component_name>` add an empty component to a tracker
 
-`!!at component area <tracker_name> <component_name> single <attr> <value>`
+`!!at component area <tracker_name> <component_name> single <attr> <value>` edit one attribute of the area of a component (ex. set x_min to -1000)
 
-`!!at component area <tracker_name> <component_name> cuboid <x1> <y1> <z1> <x2> <y2> <z2>`
+`!!at component area <tracker_name> <component_name> cuboid <x1> <y1> <z1> <x2> <y2> <z2>` overwrite the area of a component by 2 opposite corners of a cuboid
 
-`!!at component area <tracker_name> <component_name> rectangle <x1> <z1> <x2> <z2>`
+`!!at component area <tracker_name> <component_name> rectangle <x1> <z1> <x2> <z2>`overwrite the area of a component by 2 opposite corners of a rectange (doesnt care about y-values)
 
-`!!at component block_type <tracker_name> <component_name> blacklist set <blacklist>`
+`!!at component block_type <tracker_name> <component_name> blacklist set <blacklist>` set blacklist of component
 
-`!!at component block_type <tracker_name> <component_name> whitelist set <ehitelist>`
+`!!at component block_type <tracker_name> <component_name> whitelist set <ehitelist>`...
 
-`!!at component block_type <tracker_name> <component_name> blacklist add <instance>`
+`!!at component block_type <tracker_name> <component_name> blacklist add <instance>` add block/blockstate to blacklist
 
-`!!at component block_type <tracker_name> <component_name> whitelist add <instance>`
+`!!at component block_type <tracker_name> <component_name> whitelist add <instance>`...
 
 `!!at tracker delete <tracker_name>` Note: this will clear all data too
 
@@ -68,11 +69,11 @@ Base command : `!!at`
 
 `!!at scoreboard create <scoreboard_name> <"Display Name">`
 
-`!!at scoreboard create <scoreboard_name> <"Display Name"> <tracker_name>`
+`!!at scoreboard create <scoreboard_name> <"Display Name"> <tracker_name>` create dedicated scoreboared for specific tracker
 
 `!!at scoreboard preset <preset_name> <scoreboard_name> ...`
 
-`!!at scoreboard add <scoreboard_name> <tracker_name> weight`
+`!!at scoreboard add <scoreboard_name> <tracker_name> weight` add tracker with weight to a scoreboard
 
 
 ## Other TODOs
