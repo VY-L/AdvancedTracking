@@ -38,43 +38,58 @@ For many of these repeating patters, there would be presets such as for trenches
 
 ### Commands
 
-Base command : `!!at`
+基础: `!!at`
 
-`!!at clicker` to enter click-to-use version gui
+`!!at` enter click menu (IDK when im gonna implement this)
 
-`!!at tracker add <tracker_name> <tracker_type>` create an empty tracker
+`!!at help` see help
 
-`!!at tracker add <tracker_name> preset <preset_name> ...` create a tracker by a preset
+`!!at add tracker <tracker_name> <tracker_type>` create new empty tracker
 
-`!!at component add <tracker_name> <component_name>` add an empty component to a tracker
+`!!at add tracker <tracker_name> <preset_name> ...` create tracker by preset
 
-`!!at component area <tracker_name> <component_name> single <attr> <value>` edit one attribute of the area of a component (ex. set x_min to -1000)
+`!!at add tracker <tracker_name> preset <preset_name> ...` create tracker by preset (used to support future custom presets)
 
-`!!at component area <tracker_name> <component_name> cuboid <x1> <y1> <z1> <x2> <y2> <z2>` overwrite the area of a component by 2 opposite corners of a cuboid
+`!!at tracker <tracker_name> add <component_name>` create an empty component under a trac ker
 
-`!!at component area <tracker_name> <component_name> rectangle <x1> <z1> <x2> <z2>`overwrite the area of a component by 2 opposite corners of a rectange (doesnt care about y-values)
+`!!at tracker <tracker_name> <component_name> create` same as above
 
-`!!at component block_type <tracker_name> <component_name> blacklist set <blacklist>` set blacklist of component
+`!!ad add component <tracker_name> <component_name>` same as above
 
-`!!at component block_type <tracker_name> <component_name> whitelist set <ehitelist>`...
+`!!at tracker <tracker_name> delete/remove` delete a tracker, will delete all data in it too, needs `!!at confirm`
 
-`!!at component block_type <tracker_name> <component_name> blacklist add <instance>` add block/blockstate to blacklist
+`!!at component <tracker_name> <component_name> area single <attr> <value>` change an area attribute of a component (Ex. change x_min to -1000)
 
-`!!at component block_type <tracker_name> <component_name> whitelist add <instance>`...
+`!!at component <tracker_name> <component_name> cuboid <x1> <y1> <z1> <x2> <y2> <z2>` overwrite/set area of certain component by 2 opposite vertices of a cuboid
 
-`!!at tracker delete <tracker_name>` Note: this will clear all data too
+`!!at component <tracker_name> <component_name> rectangle <x1> <z1> <x2> <z2>` Same as above, but rectange (ignore y-value)
+
+`!!at component <tracker_name> <component_name> blacklist set <blacklist>` overwrite blacklist
+
+`!!at component <tracker_name> <component_name> whitelist set <whitelist>`...
+
+`!!at component <tracker_name> <component_name> blacklist add <instance>` add a block(state) to blacklist
+
+`!!at component <tracker_name> <component_name> whitelist add <instance>`...
+
+`!!at component <tracker_name> <component_name> blacklist` set to blacklist mode
+
+`!!at component <tracker_name> <component_name> whitelist`
+
+`!!at component <tracker_name> <component_name> remove/delete`
+
+`!!at tracker <tracker_name> remove/delete <component_name>`
 
 
-`!!at scoreboard create <scoreboard_name>`
+`!!at add scoreboard <scoreboard_name>`
 
-`!!at scoreboard create <scoreboard_name> <"Display Name">`
+`!!at add scoreboard <scoreboard_name> <"Display Name">`
 
-`!!at scoreboard create <scoreboard_name> <"Display Name"> <tracker_name>` create dedicated scoreboared for specific tracker
+`!!at add scoreboard <scoreboard_name> <"Display Name"> <tracker_name>` create a dedicated scoreboard for a tracker
 
-`!!at scoreboard preset <preset_name> <scoreboard_name> ...`
+`!!at scoreboard <scoreboard_name> preset <preset_name>` overwrite/create scoreboard by preset
 
-`!!at scoreboard add <scoreboard_name> <tracker_name> weight` add tracker with weight to a scoreboard
-
+`!!at scoreboard add <scoreboard_name> <tracker_name> <weight>` add a tracker-weight pair under a scoreboard
 
 ## Other TODOs
 - Lang

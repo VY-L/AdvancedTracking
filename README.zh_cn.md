@@ -41,40 +41,56 @@ MCDR plugin used to track customary player events
 
 基础: `!!at`
 
-`!!at clicker` 进入基于点击聊天栏超链接的UI（鸽）
+`!!at` 进入基于点击聊天栏超链接的UI（鸽）
 
-`!!at tracker add <tracker_name> <tracker_type>` 创建新的空跟踪器
+`!!at help` 查看帮助
 
-`!!at tracker add <tracker_name> preset <preset_name> ...` 用一个预设创建一个跟踪器
+`!!at add tracker <tracker_name> <tracker_type>` 创建新的空跟踪器
 
-`!!at component add <tracker_name> <component_name>` 在一个跟踪器下创建一个组件
+`!!at add tracker <tracker_name> <preset_name> ...` 用一个预设创建一个跟踪器
 
-`!!at component area <tracker_name> <component_name> single <attr> <value>` 更改组件范围的一个属性(比如说把最小x值设成-1000，或者设为null(不在乎))
+`!!at add tracker <tracker_name> preset <preset_name> ...` 用预设创建跟踪器（未来支持自己写预设可能只能用这个
 
-`!!at component area <tracker_name> <component_name> cuboid <x1> <y1> <z1> <x2> <y2> <z2>` 按照一个长方体的两角覆写一个组件的范围
+`!!at tracker <tracker_name> add <component_name>` 在一个跟踪器下创建一个组件
 
-`!!at component area <tracker_name> <component_name> rectangle <x1> <z1> <x2> <z2>`按照一个长方型的两角覆写一个组件的范围（不在意y值）
+`!!at tracker <tracker_name> <component_name> create` 同理
 
-`!!at component block_type <tracker_name> <component_name> blacklist set <blacklist>` 覆写一个组件的黑名单
+`!!ad add component <tracker_name> <component_name>` 同理
 
-`!!at component block_type <tracker_name> <component_name> whitelist set <ehitelist>`...
+`!!at tracker <tracker_name> delete/remove` 删除一个跟踪器，注：数据也会删掉，需要 `!!at confirm`
 
-`!!at component block_type <tracker_name> <component_name> blacklist add <instance>` 在一个组件的黑名单中加入一个方块
+`!!at component <tracker_name> <component_name> area single <attr> <value>` 更改组件范围的一个属性(比如说把最小x值设成-1000，或者设为null(不在乎))
 
-`!!at component block_type <tracker_name> <component_name> whitelist add <instance>`...
+`!!at component <tracker_name> <component_name> cuboid <x1> <y1> <z1> <x2> <y2> <z2>` 按照一个长方体的两角覆写一个组件的范围
 
-`!!at tracker delete <tracker_name>` 删除一个跟踪器，注：数据也会删掉
+`!!at component <tracker_name> <component_name> rectangle <x1> <z1> <x2> <z2>`按照一个长方型的两角覆写一个组件的范围（不在意y值）
+
+`!!at component <tracker_name> <component_name> blacklist set <blacklist>` 覆写一个组件的黑名单
+
+`!!at component <tracker_name> <component_name> whitelist set <whitelist>`...
+
+`!!at component <tracker_name> <component_name> blacklist add <instance>` 在一个组件的黑名单中加入一个方块
+
+`!!at component <tracker_name> <component_name> whitelist add <instance>`...
+
+`!!at component <tracker_name> <component_name> blacklist` 设置为黑名单模式
+
+`!!at component <tracker_name> <component_name> whitelist`
+
+`!!at component <tracker_name> <component_name> remove/delete`
+
+`!!at tracker <tracker_name> remove/delete <component_name>`
 
 
-`!!at scoreboard create <scoreboard_name>`
+`!!at add scoreboard <scoreboard_name>`
 
-`!!at scoreboard create <scoreboard_name> <"Display Name">`
+`!!at add scoreboard <scoreboard_name> <"Display Name">`
 
-`!!at scoreboard create <scoreboard_name> <"Display Name"> <tracker_name>` 为一个跟踪器创建要给单独的计分板
+`!!at add scoreboard <scoreboard_name> <"Display Name"> <tracker_name>` 为一个跟踪器创建一个单独的计分板
 
-`!!at scoreboard preset <preset_name> <scoreboard_name> ...`
+`!!at scoreboard <scoreboard_name> preset <preset_name>` 用预设创建/覆写计分板
 
-`!!at scoreboard add <scoreboard_name> <tracker_name> weight` 在一个计分板下面增加一个计分板-权重对
+`!!at scoreboard add <scoreboard_name> <tracker_name> <weight>` 在一个计分板下面增加一个计分板-权重对
 
 
 ## Other TODOs
@@ -82,6 +98,7 @@ MCDR plugin used to track customary player events
 - Usages, How It works in README.md
 - Variable update mechanisms
 - add type for Area, BlockType
+- 禁用
 
 ## Data schemes
 ### tracker structure
