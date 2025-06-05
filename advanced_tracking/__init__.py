@@ -80,6 +80,14 @@ class AdvancedTrackingManager:
         self.tracker_registry = TrackerRegistry.deserialize(server.load_config_simple("trackers"))
         self.scoreboard_registry = ScoreboardRegistry.deserialize(server.load_config_simple("scoreboards"))
         self.config = server.load_config_simple(target_class=Config)
+        self.script_loader.reload_all()
+    
+    def save(self):
+        self.server.save_config_simple("trackers", self.tracker_registry.serialize())
+        self.server.save_config_simple("scoreboards", self.scoreboard_registry.serialize())
+        self.server.save_config_simple("config", self.config)
+    
+    
 
 
     
@@ -96,4 +104,3 @@ def on_load(server:PluginServerInterface, prev):
     # script_manager = ScriptManager(server)
     pass
     
-

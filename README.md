@@ -48,17 +48,17 @@ For many of these repeating patters, there would be presets such as for trenches
 
 `!!at add tracker <tracker_name> <preset_name> ...` create tracker by preset
 
-`!!at add tracker <tracker_name> preset <preset_name> ...` create tracker by preset (used to support future custom presets)
+<!-- `!!at add tracker <tracker_name> preset <preset_name> ...` create tracker by preset (used to support future custom presets) -->
 
-`!!at tracker <tracker_name> add <component_name>` create an empty component under a trac ker
+`!!at tracker <tracker_name> add <component_name>` create an empty component under a tracker
 
-`!!at tracker <tracker_name> <component_name> create` same as above
+`!!at component <tracker_name> <component_name> create` same as above
 
 `!!ad add component <tracker_name> <component_name>` same as above
 
 `!!at tracker <tracker_name> delete/remove` delete a tracker, will delete all data in it too, needs `!!at confirm`
 
-`!!at component <tracker_name> <component_name> area single <attr> <value>` change an area attribute of a component (Ex. change x_min to -1000)
+`!!at component <tracker_name> <component_name> attr <value>` change an area attribute of a component (Ex. change x_min to -1000)
 
 `!!at component <tracker_name> <component_name> cuboid <x1> <y1> <z1> <x2> <y2> <z2>` overwrite/set area of certain component by 2 opposite vertices of a cuboid
 
