@@ -1,3 +1,4 @@
+import json
 from typing import List, Dict, Optional, Type
 from typing_extensions import Self
 from advanced_tracking.tracker import Tracker
@@ -7,51 +8,29 @@ class TrackerScoreboardConfig:
     '''
     records a tracker and its weight inside a scoreboard
     '''
-    def __init__(self, tracker:Tracker, weight:int=1):
-        self.tracker:Tracker = tracker
+    def __init__(self, tracker_id:str, weight:int=1):
+        self.tracker_id = tracker_id
         self.weight:int = weight
+
     def to_script(self) -> Dict:
         '''
         used to generate the json file that the carpet script uses
         '''
-        return {"tracker_id":self.tracker.id, "weight":self.weight}
+        return {"tracker_id":self.tracker_id, "weight":self.weight}
     
-    def serialize(self) -> Dict:
-        return {
-            "tracker": self.tracker.serialize(),
-            "weight": self.weight
-        }
+    def to_dict(self) -> Dict:
+        return self.to_script()
 
     @classmethod
-    def deserialize(cls, data:Dict) -> "TrackerScoreboardConfig":
-        tracker = Tracker.deserialize(data["tracker"])
-        weight = data.get("weight", 1)
-        return cls(tracker=tracker, weight=weight)
-    
-    def serialize(self) -> Dict:
-        return {
-            "id": self.id,
-            "display_name": self.display_name,
-            "mode": self.mode,
-            "trackers": [tracker.serialize() for tracker in self.trackers]
-        }
-
-    @classmethod
-    def deserialize(cls:Type[Self], data:Dict) -> "Scoreboard":
-        obj = cls(
-            objective=data["id"],
-            display_name=data.get("display_name"),
-            mode=data.get("mode", "weighted_sum")
-        )
-        obj.trackers = [TrackerScoreboardConfig.deserialize(t) for t in data.get("trackers", [])]
-        return obj
+    def from_dict(cls, data:Dict) -> Self:
+        return cls(data["tracker_id"], data["weight"])
 
 class Scoreboard:
     '''
     A scoreboard class
-    
+
     should load and save into config files
-    
+
     '''
     def __init__(self, objective:str, display_name:Optional[str] = None, mode:str="weighted_sum"):
         if display_name is None:
@@ -60,89 +39,93 @@ class Scoreboard:
         self.display_name:str = display_name
         self.mode:str = mode
         self.trackers:List[TrackerScoreboardConfig] = []
-    
+
+    def add_tracker(self, tracker:TrackerScoreboardConfig):
+        '''
+        add a tracker to the scoreboard
+        '''
+        self.trackers.append(tracker)
+
     def to_script(self):
         '''
         used to generate the json file that the carpet script uses
         '''
-        tracker_dicts = map(lambda tsc: tsc.to_script, self.trackers)
+        # tracker_dicts = list(map(lambda tsc: tsc.to_script, self.trackers))
+        tracker_dicts = [tsc.to_dict() for tsc in self.trackers]
         return {
-            "display_name": self.display_name, 
-            "mode": self.mode, 
+            "display_name": self.display_name,
+            "mode": self.mode,
             "trackers": tracker_dicts
         }
-    
-    def serialize(self) -> Dict:
+
+    def to_dict(self) -> Dict:
         return {
             "id": self.id,
             "display_name": self.display_name,
             "mode": self.mode,
-            "trackers": [tracker.serialize() if hasattr(tracker, "serialize") else {
-                "tracker_id": tracker.tracker.id if hasattr(tracker, "tracker") else None,
-                "weight": tracker.weight if hasattr(tracker, "weight") else None
-            } for tracker in self.trackers]
-        }
-    
-    @classmethod
-    def deserialize(cls, data:Dict) -> Self:
-        return cls(
-            id=data["id"],
-            area=data.get("area", {}),
-            block_type=data.get("block_type", {})
-        )
-    
-    def serialize(self) -> Dict:
-        return {
-            "id": self.id,
-            "area": self.area,
-            "block_type": self.block_type
+            "trackers": [tracker.to_dict() for tracker in self.trackers]
         }
 
     @classmethod
-    def deserialize(cls, data:Dict) -> Self:
-        return cls(
-            id=data["id"],
-            area=data.get("area", {}),
-            block_type=data.get("block_type", {})
-        )
+    def from_dict(cls, data:Dict) -> Self:
+        tracker = cls(data["id"], data["display_name"], data["mode"])
+        for tracker_weight_pair in data["trackers"]:
+            tracker_scoreboard_config = TrackerScoreboardConfig.from_dict(tracker_weight_pair)
+            tracker.trackers.append(tracker_scoreboard_config)
+        return tracker
+
 
 
 
 class ScoreboardRegistry:
     """Singleton-like registry for all Scoreboard instances."""
     _instance = None
-    scoreboards: Dict[str, Scoreboard]
+    scoreboards:List[Scoreboard]
 
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
-            cls._instance.scoreboards = {}
+            cls._instance.scoreboards = []
         return cls._instance
 
     def add(self, scoreboard: Scoreboard):
-        self.scoreboards[scoreboard.id] = scoreboard
+        self.scoreboards.append(scoreboard)
 
-    def get(self, scoreboard_id: str) -> Optional[Scoreboard]:
-        return self.scoreboards.get(scoreboard_id)
+    # def get(self, scoreboard_id: str) -> Optional[Scoreboard]:
+    #     return self.scoreboards.get(scoreboard_id)
+    #
+    # def all(self) -> List[Scoreboard]:
+    #     return list(self.scoreboards.values())
+    #
+    # def remove(self, scoreboard_id: str):
+    #     if scoreboard_id in self.scoreboards:
+    #         del self.scoreboards[scoreboard_id]
 
-    def all(self) -> List[Scoreboard]:
-        return list(self.scoreboards.values())
-
-    def remove(self, scoreboard_id: str):
-        if scoreboard_id in self.scoreboards:
-            del self.scoreboards[scoreboard_id]
-
-    def serialize(self) -> Dict:
+    def to_dict(self) -> Dict:
         return {
-            "scoreboards": [sb.serialize() for sb in self.scoreboards.values()]
+            "scoreboards": [sb.to_dict() for sb in self.scoreboards]
         }
 
     @classmethod
-    def deserialize(cls, data: Dict) -> Self:
+    def from_dict(cls, data: Dict) -> Self:
         instance = cls()
         instance.scoreboards.clear()
         for sb_data in data.get("scoreboards", []):
-            sb = Scoreboard.deserialize(sb_data)
+            sb = Scoreboard.from_dict(sb_data)
             instance.add(sb)
         return instance
 
+    def to_script(self) -> Dict:
+        return {sb.id: sb.to_script() for sb in self.scoreboards}
+
+if __name__ == "__main__":
+    # Example usage
+    scoreboard_registry = ScoreboardRegistry()
+    scoreboard = Scoreboard("example_scoreboard", "Example Scoreboard")
+    scoreboard.add_tracker(TrackerScoreboardConfig("tracker1", 2))
+    scoreboard_registry.add(scoreboard)
+
+    print(json.dumps(scoreboard_registry.to_dict(), indent=4, sort_keys=True))
+    loaded_registry = ScoreboardRegistry.from_dict(scoreboard_registry.to_dict())
+    print(json.dumps(loaded_registry.to_script(), indent=4, sort_keys=True))
+    # print(loaded_registry.all())
