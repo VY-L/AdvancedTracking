@@ -1,8 +1,10 @@
 from mcdreforged.plugin.si.plugin_server_interface import PluginServerInterface
 from mcdreforged.plugin.si.server_interface import ServerInterface
 from mcdreforged.utils.serializer import Serializable
-from tracker import Tracker, TrackerRegistry
-from scoreboard import Scoreboard, ScoreboardRegistry
+from advanced_tracking.tracker import Tracker, TrackerRegistry
+from advanced_tracking.scoreboard import Scoreboard, ScoreboardRegistry
+
+from advanced_tracking.command.commands import CommandManager
 
 # from typing import Dict, List, Optional, Type
 # from typing_extensions import Self
@@ -23,7 +25,7 @@ class ScriptLoader():
         self.data_dst:str = os.path.join(self.script_dst, R"shared\advanced_tracking")
         self.server:ServerInterface = server
     
-    def copy_data():
+    def copy_data(self):
         pass
     
     def reload_all(self):
@@ -53,54 +55,33 @@ class AdvancedTrackingManager:
     initialized: bool = False
     tracker_registry: TrackerRegistry
     scoreboard_registry: ScoreboardRegistry
-    script_loader: ScriptLoader
-    config: Config
+    # script_loader: ScriptLoader
+    # config: Config
+    command_manager: CommandManager
     server: PluginServerInterface
-    
-    def __new__(cls, *args, **kwargs):
+
+    def __new__(cls, server: PluginServerInterface = None):
         if cls._instance is None:
+            if server is None:
+                raise ValueError("Server instance must be provided for the first initialization.")
             cls._instance = super().__new__(cls)
             cls.initialized = True
-            # Add more initialization as needed
+
+            cls.server = server
+            cls.tracker_registry = TrackerRegistry()
+            cls.scoreboard_registry = ScoreboardRegistry()
+            # cls.script_loader = ScriptLoader(server, os.path.join(SERVER_PATH, PLUGIN_PATH), os.path.join(SERVER_PATH, R"shared\advanced_tracking"))
+            cls.command_manager = CommandManager(server, cls.tracker_registry, cls.scoreboard_registry)
+            cls.command_manager.register_commands()
         return cls._instance
 
-    @property
-    def trackers(self) -> TrackerRegistry:
-        return self.tracker_registry
 
-    @property
-    def scoreboards(self) -> ScoreboardRegistry:
-        return self.scoreboard_registry
-    
-    def init(self, server:PluginServerInterface):
-        if self.initialized:
-            pass
-        self.server = server
-        self.script_loader = ScriptLoader(server, script_src=os.path.join(PLUGIN_PATH, "scripts"), script_dst=os.path.join(SERVER_PATH, "world", "scripts"))
-        self.tracker_registry = TrackerRegistry.deserialize(server.load_config_simple("trackers"))
-        self.scoreboard_registry = ScoreboardRegistry.deserialize(server.load_config_simple("scoreboards"))
-        self.config = server.load_config_simple(target_class=Config)
-        self.script_loader.reload_all()
-    
-    def save(self):
-        self.server.save_config_simple("trackers", self.tracker_registry.serialize())
-        self.server.save_config_simple("scoreboards", self.scoreboard_registry.serialize())
-        self.server.save_config_simple("config", self.config)
-    
+advanced_tracking_manager: AdvancedTrackingManager = None
     
 
+def on_load(server:PluginServerInterface):
+    global advanced_tracking_manager
+    advanced_tracking_manager = AdvancedTrackingManager(server)
 
-    
-
-def on_load(server:PluginServerInterface, prev):
-    # global config
-    # config = server.load_config_simple(target_class=Config)
-    # global script_loader
-    # script_loader = ScriptLoader(server, script_src=R"plugins\advancedTracking\Advanced_tracking\scripts", script_dst=R"server\world\scripts")
-    # script_loader.reload_all()
-    # print("Advanced Tracking loaded")
-    # print(ssC.serialize())
-    # global script_manager
-    # script_manager = ScriptManager(server)
     pass
     
