@@ -24,7 +24,7 @@ class TrackerComponent:
 
     @classmethod
     def from_dict(cls, data: dict) -> Self:
-        return TrackerComponent(
+        return cls(
             id=data["id"],
             area=data["area"],
             block_type=data["block_type"]
@@ -62,7 +62,7 @@ class Tracker:
 
     @classmethod
     def from_dict(cls, data: dict) -> Self:
-        tracker = Tracker(
+        tracker = cls(
             tracker_id=data["id"],
             tracker_type=data["type"],
             area=data.get("area", {})
@@ -100,7 +100,7 @@ class TrackerRegistry:
 
     @classmethod
     def from_dict(cls, data: dict) -> Self:
-        registry = TrackerRegistry()
+        registry = cls()
         for tracker_id, tracker_data in data.items():
             tracker = Tracker.from_dict(tracker_data)
             registry.trackers.append(tracker)
