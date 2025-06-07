@@ -78,15 +78,17 @@ class Scoreboard:
 
 
 class ScoreboardRegistry:
-    """Singleton-like registry for all Scoreboard instances."""
-    _instance = None
-    scoreboards:List[Scoreboard]
-
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-            cls._instance.scoreboards = []
-        return cls._instance
+    # """Singleton-like registry for all Scoreboard instances."""
+    # _instance = None
+    # scoreboards:List[Scoreboard]
+    #
+    # def __new__(cls):
+    #     if cls._instance is None:
+    #         cls._instance = super().__new__(cls)
+    #         cls._instance.scoreboards = []
+    #     return cls._instance
+    def __init__(self):
+        self.scoreboards: List[Scoreboard] = []
 
     def add(self, scoreboard: Scoreboard):
         self.scoreboards.append(scoreboard)
