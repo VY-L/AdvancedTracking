@@ -16,7 +16,7 @@ class TrackerComponent:
     #     if block_type is not None:
     #         self.block_type = block_type
 
-    def to_script(self):
+    def to_script(self) -> Dict:
         return {
             "area": self.area,
             "block_type": self.block_type
@@ -30,7 +30,7 @@ class TrackerComponent:
             block_type=data["block_type"]
         )
 
-    def to_dict(self):
+    def to_dict(self) -> Dict:
         return {
             "id": self.id,
             "area": self.area,
@@ -46,13 +46,13 @@ class Tracker:
         self.area = area if area is not None else {}
         self.components: List[TrackerComponent] = []
 
-    def add_component(self, name: str, component: TrackerComponent):
+    def add_component(self, name: str, component: TrackerComponent) -> None:
         self.components.append(component)
     #
     # def update_area(self, area: Dict[str, int]):
     #     self.area = area
 
-    def to_dict(self):
+    def to_dict(self) -> Dict:
         return {
             "id": self.id,
             "type": self.type,
@@ -75,7 +75,7 @@ class Tracker:
             tracker.components.append(TrackerComponent.from_dict(comp_data))
         return tracker
 
-    def to_script(self):
+    def to_script(self) -> Dict:
         return {
             "area": self.area,
             "components": {comp.id: comp.to_script() for comp in self.components}
@@ -85,7 +85,7 @@ class TrackerRegistry:
     def __init__(self):
         self.trackers: List[Tracker] = []
 
-    def add(self, tracker: Tracker):
+    def add(self, tracker: Tracker) -> None:
         self.trackers.append(tracker)
 
     # def get(self, tracker_id: str) -> Optional[Tracker]:
@@ -95,7 +95,7 @@ class TrackerRegistry:
     #     if tracker_id in self.trackers:
     #         del self.trackers[tracker_id]
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Dict]:
         return {tracker.id: tracker.to_dict() for tracker in self.trackers}
 
     @classmethod
@@ -106,7 +106,7 @@ class TrackerRegistry:
             registry.trackers.append(tracker)
         return registry
 
-    def update_json_file(self, file_path: str):
+    def update_json_file(self, file_path: str) -> None:
         # add all trackers to "default group"，area would be empty
         tracker_types = ["player_break_blocks", "player_place_blocks"]
         data = {"player_break_blocks":{"default_group": {"area":{}, "trackers":{}}},

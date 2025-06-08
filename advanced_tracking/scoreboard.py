@@ -40,13 +40,13 @@ class Scoreboard:
         self.mode:str = mode
         self.trackers:List[TrackerScoreboardConfig] = []
 
-    def add_tracker(self, tracker:TrackerScoreboardConfig):
+    def add_tracker(self, tracker:TrackerScoreboardConfig) -> None:
         '''
         add a tracker to the scoreboard
         '''
         self.trackers.append(tracker)
 
-    def to_script(self):
+    def to_script(self)-> Dict:
         '''
         used to generate the json file that the carpet script uses
         '''
@@ -78,30 +78,27 @@ class Scoreboard:
 
 
 class ScoreboardRegistry:
-    # """Singleton-like registry for all Scoreboard instances."""
-    # _instance = None
-    # scoreboards:List[Scoreboard]
-    #
-    # def __new__(cls):
-    #     if cls._instance is None:
-    #         cls._instance = super().__new__(cls)
-    #         cls._instance.scoreboards = []
-    #     return cls._instance
     def __init__(self):
         self.scoreboards: List[Scoreboard] = []
 
-    def add(self, scoreboard: Scoreboard):
+    def add(self, scoreboard: Scoreboard) -> None:
         self.scoreboards.append(scoreboard)
 
-    # def get(self, scoreboard_id: str) -> Optional[Scoreboard]:
-    #     return self.scoreboards.get(scoreboard_id)
-    #
+    def get(self, scoreboard_id: str) -> Optional[Scoreboard]:
+        for scoreboard in self.scoreboards:
+            if scoreboard.id == scoreboard_id:
+                return scoreboard
+        return None
+
+    def remove(self, scoreboard_id: str) -> None:
+        """
+        Remove a scoreboard by its ID.
+        """
+        self.scoreboards = [sb for sb in self.scoreboards if sb.id != scoreboard_id]
+
     # def all(self) -> List[Scoreboard]:
     #     return list(self.scoreboards.values())
-    #
-    # def remove(self, scoreboard_id: str):
-    #     if scoreboard_id in self.scoreboards:
-    #         del self.scoreboards[scoreboard_id]
+
 
     def to_dict(self) -> Dict:
         return {

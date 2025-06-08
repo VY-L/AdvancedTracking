@@ -1,6 +1,6 @@
 import shutil
 import os
-
+from mcdreforged.plugin.si.server_interface import ServerInterface
 
 class ScriptLoader():
     def __init__(self, server: ServerInterface, script_src, script_dst):
