@@ -5,10 +5,11 @@ from typing_extensions import Self
 TrackerType = Literal["player_break_blocks", "player_place_blocks"]
 
 class TrackerComponent:
-    def __init__(self, id: str, area: Dict[str, int], block_type: Dict):
+    def __init__(self, id: str, area: Dict[str, int], block_type: Dict, comments: Optional[str] = None):
         self.id = id
         self.area = area
         self.block_type = block_type
+        self.comments = comments if comments is not None else ""
 
     # def update(self, area: Optional[Dict[str, int]] = None, block_type: Optional[Dict] = None):
     #     if area is not None:
@@ -27,37 +28,38 @@ class TrackerComponent:
         return cls(
             id=data["id"],
             area=data["area"],
-            block_type=data["block_type"]
+            block_type=data["block_type"],
+            comments=data.get("comments", "")
         )
 
     def to_dict(self) -> Dict:
         return {
             "id": self.id,
             "area": self.area,
-            "block_type": self.block_type
+            "block_type": self.block_type,
+            "comments": self.comments
         }
 
 class Tracker:
-    def __init__(self, tracker_id: str, tracker_type: TrackerType, area: Optional[Dict[str, int]] = None):
+    def __init__(self, tracker_id: str, tracker_type: TrackerType, area: Optional[Dict[str, int]] = None, comments: Optional[str] = None):
         # if tracker_type not in ("player_break_blocks", "player_place_blocks"):
         #     raise ValueError("tracker_type must be 'player_break_blocks' or 'player_place_blocks'")
         self.id = tracker_id
         self.type = tracker_type
         self.area = area if area is not None else {}
         self.components: List[TrackerComponent] = []
+        self.comments:str = comments if comments is not None else ""
 
     def add_component(self, name: str, component: TrackerComponent) -> None:
         self.components.append(component)
-    #
-    # def update_area(self, area: Dict[str, int]):
-    #     self.area = area
 
     def to_dict(self) -> Dict:
         return {
             "id": self.id,
             "type": self.type,
             "area": self.area,
-            "components": [comp.to_dict() for comp in self.components]
+            "components": [comp.to_dict() for comp in self.components],
+            "comments": self.comments
         }
 
     @classmethod
@@ -65,7 +67,8 @@ class Tracker:
         tracker = cls(
             tracker_id=data["id"],
             tracker_type=data["type"],
-            area=data.get("area", {})
+            area=data.get("area", {}),
+            comments=data.get("comments", "")
         )
         # 兼容组件为列表或字典
         components = data.get("components", [])
@@ -87,13 +90,6 @@ class TrackerRegistry:
 
     def add(self, tracker: Tracker) -> None:
         self.trackers.append(tracker)
-
-    # def get(self, tracker_id: str) -> Optional[Tracker]:
-    #     return self.trackers.get(tracker_id)
-
-    # def remove(self, tracker_id: str):
-    #     if tracker_id in self.trackers:
-    #         del self.trackers[tracker_id]
 
     def to_dict(self) -> Dict[str, Dict]:
         return {tracker.id: tracker.to_dict() for tracker in self.trackers}

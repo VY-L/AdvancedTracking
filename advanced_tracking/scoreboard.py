@@ -32,13 +32,14 @@ class Scoreboard:
     should load and save into config files
 
     '''
-    def __init__(self, objective:str, display_name:Optional[str] = None, mode:str="weighted_sum"):
+    def __init__(self, objective:str, display_name:Optional[str] = None, mode:str="weighted_sum", comments:Optional[str] = None):
         if display_name is None:
             display_name = objective
         self.id:str = objective
         self.display_name:str = display_name
         self.mode:str = mode
         self.trackers:List[TrackerScoreboardConfig] = []
+        self.comments = comments if comments is not None else ""
 
     def add_tracker(self, tracker:TrackerScoreboardConfig) -> None:
         '''
@@ -63,12 +64,13 @@ class Scoreboard:
             "id": self.id,
             "display_name": self.display_name,
             "mode": self.mode,
-            "trackers": [tracker.to_dict() for tracker in self.trackers]
+            "trackers": [tracker.to_dict() for tracker in self.trackers],
+            "comments": self.comments
         }
 
     @classmethod
     def from_dict(cls, data:Dict) -> Self:
-        tracker = cls(data["id"], data["display_name"], data["mode"])
+        tracker = cls(data["id"], data["display_name"], data["mode"], data.get("comments", ""))
         for tracker_weight_pair in data["trackers"]:
             tracker_scoreboard_config = TrackerScoreboardConfig.from_dict(tracker_weight_pair)
             tracker.trackers.append(tracker_scoreboard_config)
