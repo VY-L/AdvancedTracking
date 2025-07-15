@@ -44,11 +44,31 @@ For many of these repeating patters, there would be presets such as for trenches
 
 `!!at help` see help
 
+[//]: # (`!!at list presets` see all presets)
+
+`!!at list tracker(s)` see all trackers
+
+`!!at list tracker <scoreboard_name>` see all trackers in a scoreboard
+
+`!!at list component <tracker_name>` see all components in a tracker
+
+`!!at list scoreboard(s)` see all scoreboards
+
+`!!at list scoreboard(s) <scoreboard_name>` see all trackers in a scoreboard
+
+
+`!!at show tracker <tracker_name>` show detail of a tracker
+
+`!!at show component <tracker_name> <component_name>` show detail of a component
+
+`!!at show scoreboard <scoreboard_name>` show detail of a scoreboard
+
+
 `!!at add tracker <tracker_name> <tracker_type>` create new empty tracker
 
 `!!at add tracker <tracker_name> <preset_name> ...` create tracker by preset
 
-<!-- `!!at add tracker <tracker_name> preset <preset_name> ...` create tracker by preset (used to support future custom presets) -->
+[//]: # (<!-- `!!at add tracker <tracker_name> preset <preset_name> ...` create tracker by preset &#40;used to support future custom presets&#41; -->)
 
 `!!at tracker <tracker_name> add <component_name>` create an empty component under a tracker
 
@@ -96,6 +116,9 @@ For many of these repeating patters, there would be presets such as for trenches
 - Usages, How It works in README.md
 - Variable update mechanisms
 - add type for Area, BlockType
+- config command prefix
+- attention is all you need (partial things)
+- search for objects
 
 ## Data schemes
 ### tracker structure
@@ -127,8 +150,7 @@ For many of these repeating patters, there would be presets such as for trenches
                                 "z_max":10
                             }, 
                             "block_type":{
-                                "whitelist": {}, 
-                                "blacklist": {
+                                "list": {
                                     "smooth_stone_slab": [
                                         {"type":"bottom"}, 
                                         {"type":"top", "waterlogged":true}

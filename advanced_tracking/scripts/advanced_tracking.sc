@@ -73,8 +73,8 @@ check_block_interaction_match_component(component, player, block) -> (
     
     block_type_restrictions = component:'block_type';
 
-    if(block_type_restrictions:'mode'=='whitelist', if(check_block_in_list(block, block_type_restrictions:'whitelist')==false, return(false)));
-    if(block_type_restrictions:'mode'=='blacklist', if(check_block_in_list(block, block_type_restrictions:'blacklist'), return(false)));
+    if(block_type_restrictions:'mode'=='whitelist', if(check_block_in_list(block, block_type_restrictions:'list')==false, return(false)));
+    if(block_type_restrictions:'mode'=='blacklist', if(check_block_in_list(block, block_type_restrictions:'list'), return(false)));
 
     return(true);
 );

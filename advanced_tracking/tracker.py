@@ -1,15 +1,16 @@
 import json
 from typing import Dict, Optional, List, Literal
-
+import types
 from mcdreforged.utils.serializer import Serializable
 from typing_extensions import Self
+from advanced_tracking.project_types import BlockTypes
 
 TrackerType = Literal["player_break_blocks", "player_place_blocks"]
 
 class TrackerComponent(Serializable):
     id: str
     area: Dict[str, int] = {}
-    block_type: Dict[str, str] = {}
+    block_type: BlockTypes = BlockTypes()
     comments: str = ""
 
     def to_script(self) -> Dict:
@@ -71,7 +72,5 @@ if __name__ == "__main__":
     reloaded_tr = TrackerRegistry.deserialize(data)
 
     print(data.__eq__(reloaded_tr.serialize()))
-
-
 
     tracker_registry.update_json_file("trackers.json")
