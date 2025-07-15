@@ -119,6 +119,8 @@ For many of these repeating patters, there would be presets such as for trenches
 - config command prefix
 - attention is all you need (partial things)
 - search for objects
+- scoreboard modes
+- better typing for list
 
 ## Data schemes
 ### tracker structure
