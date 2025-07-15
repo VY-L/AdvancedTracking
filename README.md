@@ -56,7 +56,7 @@ For many of these repeating patters, there would be presets such as for trenches
 
 `!!at list scoreboard(s) <scoreboard_name>` see all trackers in a scoreboard
 
-
+Note here that you can also not write show\
 `!!at show tracker <tracker_name>` show detail of a tracker
 
 `!!at show component <tracker_name> <component_name>` show detail of a component

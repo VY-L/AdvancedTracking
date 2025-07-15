@@ -40,10 +40,10 @@ class Tracker(Serializable):
 
     def show_info(self, src: CommandSource):
         src.reply(f"Tracker ID: {self.id}\n\
-        Display Name: {self.comments}\n\
-        Type: {self.type}\n\
-        Area: {self.area}\n\
-        Components: {[comp.id for comp in self.components]}")
+Type: {self.type}\n\
+Area: {self.area}\n\
+Components: {[comp.id for comp in self.components]}\n\
+Comments: {self.comments}\n")
 
 class TrackerRegistry(Serializable):
     """Registry for all trackers."""

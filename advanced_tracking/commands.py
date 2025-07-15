@@ -86,7 +86,7 @@ class CommandManager:
     def cmd_add_scoreboard(self, src: CommandSource, ctx: CommandContext):
         print(ctx)
         display_name = ctx.get("display_name", ctx["scoreboard_id"])
-        scoreboard = Scoreboard(ctx["scoreboard_id"], display_name, comments=ctx.get("comments", ""))
+        scoreboard = Scoreboard(id=ctx["scoreboard_id"], display_name=display_name, comments=ctx.get("comments", ""))
         if "tracker_id" in ctx:
             scoreboard.add_tracker(ctx["tracker_id"])
         self.scoreboard_registry.add(scoreboard)
@@ -94,11 +94,11 @@ class CommandManager:
         pass
 
     def cmd_showraw_scoreboard(self, src: CommandSource, ctx: CommandContext):
-        reply = json.dumps(self.scoreboard_registry.to_dict(), indent=4, sort_keys=True)
+        reply = json.dumps(self.scoreboard_registry.serialize(), indent=4, sort_keys=True)
         src.reply(reply)
 
     def cmd_showraw_tracker(self, src: CommandSource, ctx: CommandContext):
-        reply = json.dumps(self.tracker_registry.to_dict(), indent=4, sort_keys=True)
+        reply = json.dumps(self.tracker_registry.serialize(), indent=4, sort_keys=True)
         src.reply(reply)
 
 
