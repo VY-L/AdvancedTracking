@@ -1,29 +1,28 @@
+from pathlib import Path
+
 from mcdreforged.plugin.si.plugin_server_interface import PluginServerInterface
-from mcdreforged.plugin.si.server_interface import ServerInterface
-from mcdreforged.utils.serializer import Serializable
 from advanced_tracking.tracker import Tracker, TrackerRegistry
 from advanced_tracking.scoreboard import Scoreboard, ScoreboardRegistry
+from advanced_tracking.script_loader import ScriptLoader
 
-from advanced_tracking.command.commands import CommandManager
+from advanced_tracking.commands import CommandManager
 
-# from typing import Dict, List, Optional, Type
-# from typing_extensions import Self
+from typing import Optional
 
 import os
-import shutil
 
-PLUGIN_PATH = R"plugins\AdvancedTracking"
+PLUGIN_PATH = r"plugins\AdvancedTracking"
 
-SERVER_PATH = R'.\server'
-
+SERVER_PATH = r".\server"
 
 
-class PermissionConfig(Serializable):
-    pass
+
+# class PermissionConfig(Serializable):
+#     pass
 
 
-class Config(Serializable):
-    permissions: PermissionConfig = PermissionConfig()
+# class Config(Serializable):
+#     permissions: PermissionConfig = PermissionConfig()
 
 
 class AdvancedTrackingManager:
@@ -32,33 +31,41 @@ class AdvancedTrackingManager:
     initialized: bool = False
     tracker_registry: TrackerRegistry
     scoreboard_registry: ScoreboardRegistry
-    # script_loader: ScriptLoader
+    script_loader: ScriptLoader
     # config: Config
     command_manager: CommandManager
     server: PluginServerInterface
 
-    def __new__(cls, server: PluginServerInterface = None):
+    def __new__(cls, server: PluginServerInterface = None, server_path: str = SERVER_PATH, plugin_path: str = PLUGIN_PATH):
         if cls._instance is None:
             if server is None:
                 raise ValueError("Server instance must be provided for the first initialization.")
             cls._instance = super().__new__(cls)
             cls.initialized = True
 
+            cls.server_path = server_path
+            cls.plugin_path = plugin_path
+
             cls.server = server
             cls.tracker_registry = TrackerRegistry()
             cls.scoreboard_registry = ScoreboardRegistry()
-            # cls.script_loader = ScriptLoader(server, os.path.join(SERVER_PATH, PLUGIN_PATH), os.path.join(SERVER_PATH, R"shared\advanced_tracking"))
+            
+            cls.script_loader = ScriptLoader(server, os.path.join(server_path, plugin_path), os.path.join(server_path, r"shared\advanced_tracking"))
             cls.command_manager = CommandManager(server, cls.tracker_registry, cls.scoreboard_registry)
             cls.command_manager.register_commands()
         return cls._instance
 
 
-advanced_tracking_manager: AdvancedTrackingManager = None
+
+advanced_tracking_manager: Optional[AdvancedTrackingManager] = None
     
 
-def on_load(server:PluginServerInterface):
+def on_load(server:PluginServerInterface, prev):
+    print("AdvancedTracking plugin is loading...")
+    print("prev:", prev)
+    print("current path:", os.path.dirname(__file__))
+    print("server path:", Path(server.get_mcdr_config().get("working_directory")).absolute())
     global advanced_tracking_manager
     advanced_tracking_manager = AdvancedTrackingManager(server)
-
     pass
-    
+

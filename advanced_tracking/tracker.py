@@ -1,6 +1,8 @@
 import json
 from typing import Dict, Optional, List, Literal
 import types
+
+from mcdreforged.command.command_source import CommandSource
 from mcdreforged.utils.serializer import Serializable
 from typing_extensions import Self
 from advanced_tracking.project_types import BlockTypes
@@ -36,6 +38,13 @@ class Tracker(Serializable):
             "components": {comp.id: comp.to_script() for comp in self.components}
         }
 
+    def show_info(self, src: CommandSource):
+        src.reply(f"Tracker ID: {self.id}\n\
+        Display Name: {self.comments}\n\
+        Type: {self.type}\n\
+        Area: {self.area}\n\
+        Components: {[comp.id for comp in self.components]}")
+
 class TrackerRegistry(Serializable):
     """Registry for all trackers."""
     trackers: List[Tracker]=[]
@@ -55,12 +64,18 @@ class TrackerRegistry(Serializable):
         with open(file_path, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=4)
 
+    def get_tracker(self, tracker_id: str) -> Optional[Tracker]:
+        for tracker in self.trackers:
+            if tracker.id == tracker_id:
+                return tracker
+        return None
+
 if __name__ == "__main__":
     # Example usage
     tracker_registry = TrackerRegistry()
 
     tracker1 = Tracker(id = "tracker1", type="player_break_blocks", area={"x": 10, "y": 20, "z": 30})
-    component1 = TrackerComponent(id = "component1", area={"x_min": 5, "y_min": 5, "z_min": 5}, block_type = {"type": "stone"})
+    component1 = TrackerComponent(id = "component1", area={"x_min": 5, "y_min": 5, "z_min": 5})
     TrackerComponent.deserialize(component1.serialize())
     # tracker1.add_component("component1")
 

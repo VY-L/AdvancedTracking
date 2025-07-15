@@ -121,6 +121,7 @@ For many of these repeating patters, there would be presets such as for trenches
 - search for objects
 - scoreboard modes
 - better typing for list
+- write help message
 
 ## Data schemes
 ### tracker structure
