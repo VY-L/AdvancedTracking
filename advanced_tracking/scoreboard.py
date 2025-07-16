@@ -1,6 +1,7 @@
 import json
 from typing import List, Dict, Optional, Type
 
+from mcdreforged.command.command_source import CommandSource
 from mcdreforged.utils.serializer import Serializable
 from typing_extensions import Self
 from advanced_tracking.tracker import Tracker
@@ -30,11 +31,16 @@ class Scoreboard(Serializable):
     '''
 
     id: str
-    display_name: Optional[str] = None
+    _display_name: Optional[str] = None
     mode: str = "weighted_sum"  # or "average", "max", etc., not supported yet
     trackers: List[TrackerScoreboardConfig] = []
     comments: str = ""
 
+    @property
+    def display_name(self) -> str:
+        if self._display_name is None:
+            return self.id
+        return self._display_name
 
     def add_tracker(self, tracker:TrackerScoreboardConfig) -> None:
         '''
@@ -53,7 +59,6 @@ class Scoreboard(Serializable):
             "mode": self.mode,
             "trackers": tracker_dicts
         }
-
 
 
 class ScoreboardRegistry(Serializable):
