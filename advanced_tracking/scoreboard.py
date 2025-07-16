@@ -59,6 +59,18 @@ class Scoreboard(Serializable):
             "mode": self.mode,
             "trackers": tracker_dicts
         }
+    def show_info(self, src: CommandSource):
+        '''
+        show the scoreboard info to the command source
+        '''
+        src.reply(f"Scoreboard ID: {self.id}")
+        src.reply(f"Display Name: {self.display_name or 'None'}")
+        src.reply(f"Mode: {self.mode}")
+        if self.mode == "weighted_sum":
+            src.reply(f"Trackers: {', '.join([tsc.tracker_id for tsc in self.trackers])}")
+        if self.comments:
+            src.reply(f"Comments: {self.comments}")
+
 
 
 class ScoreboardRegistry(Serializable):
@@ -84,6 +96,19 @@ class ScoreboardRegistry(Serializable):
 
     def to_script(self) -> Dict:
         return {sb.id: sb.to_script() for sb in self.scoreboards}
+
+    def list_scoreboards(self, src: CommandSource) -> None:
+        """
+        List all scoreboard IDs.
+        """
+        if not self.scoreboards:
+            src.reply("No scoreboards registered.")
+            return
+        src.reply("Scoreboards:")
+        for scoreboard in self.scoreboards:
+            src.reply(f"- {scoreboard.id} (Display Name: {scoreboard.display_name})")
+    def list_scoreboards_detailed(self, src: CommandSource) -> None:
+        pass
 
 if __name__ == "__main__":
     # Example usage

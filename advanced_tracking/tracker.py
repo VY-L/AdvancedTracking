@@ -18,8 +18,15 @@ class TrackerComponent(Serializable):
     def to_script(self) -> Dict:
         return {
             "area": self.area,
-            "block_type": self.block_type
+            "block_type": self.block_type.serialize()
         }
+
+    def show_info(self, src: CommandSource) -> None:
+        src.reply(f"Component ID: {self.id}")
+        src.reply(f"Area: {self.area}")
+        src.reply(f"Block Type: {self.block_type}")
+        if self.comments:
+            src.reply(f"Comments: {self.comments}")
 
 
 class Tracker(Serializable):
@@ -38,12 +45,13 @@ class Tracker(Serializable):
             "components": {comp.id: comp.to_script() for comp in self.components}
         }
 
-    def show_info(self, src: CommandSource):
-        src.reply(f"Tracker ID: {self.id}\n\
-Type: {self.type}\n\
-Area: {self.area}\n\
-Components: {[comp.id for comp in self.components]}\n\
-Comments: {self.comments}\n")
+    def show_info(self, src: CommandSource) -> None:
+        src.reply(f"Tracker ID: {self.id}")
+        src.reply(f"Type: {self.type}")
+        src.reply(f"Area: {self.area}")
+        src.reply(f"Components: {[comp.id for comp in self.components]}")
+        if self.comments:
+            src.reply(f"Comments: {self.comments}")
 
 class TrackerRegistry(Serializable):
     """Registry for all trackers."""
@@ -69,6 +77,14 @@ class TrackerRegistry(Serializable):
             if tracker.id == tracker_id:
                 return tracker
         return None
+
+    def list_trackers(self, src: CommandSource):
+        """List all trackers."""
+        if not self.trackers:
+            src.reply("No trackers found.")
+            return
+        for tracker in self.trackers:
+            src.reply(f"- {tracker.id} ({tracker.type})" + tracker.comments)
 
 if __name__ == "__main__":
     # Example usage
