@@ -4,11 +4,15 @@ from typing_extensions import Self
 from mcdreforged.utils.serializer import Serializable
 from pathlib import Path
 
+from advanced_tracking import ScoreboardRegistry, TrackerRegistry
+
+
 class PermissionConfig(Serializable):
     pass
 
 class Config(Serializable):
-
+    scoreboard_registry: ScoreboardRegistry = ScoreboardRegistry()
+    tracker_registry: TrackerRegistry = TrackerRegistry()
     @classmethod
     @functools.lru_cache
     def __get_default(cls) -> Self:

@@ -122,6 +122,7 @@ Note here that you can also not write show\
 - scoreboard modes
 - better typing for list
 - write help message
+- disabe/delete trackers
 
 ## Data schemes
 ### tracker structure

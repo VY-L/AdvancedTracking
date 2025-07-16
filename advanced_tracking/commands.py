@@ -19,17 +19,15 @@ TRACKER_TYPE_DICT: Dict[str, str] = {
 }
 
 class CommandManager:
-    def __init__(self, server: PluginServerInterface,
-                 tracker_registry: Optional[TrackerRegistry]=None,
-                 scoreboard_registry: Optional[ScoreboardRegistry]=None):
-        if tracker_registry is None:
-            tracker_registry = TrackerRegistry()
-        if scoreboard_registry is None:
-            scoreboard_registry = ScoreboardRegistry()
+    def __init__(self, server: PluginServerInterface):
+        # if tracker_registry is None:
+        #     tracker_registry = TrackerRegistry()
+        # if scoreboard_registry is None:
+        #     scoreboard_registry = ScoreboardRegistry()
         self.config = Config.get()
         self.server = server
-        self.tracker_registry = tracker_registry
-        self.scoreboard_registry = scoreboard_registry
+        self.tracker_registry = self.config.tracker_registry
+        self.scoreboard_registry = self.config.scoreboard_registry
 
     # list stuff
 
