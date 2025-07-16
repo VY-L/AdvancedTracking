@@ -59,8 +59,8 @@ class CommandManager:
             response = f"Scoreboard '{scoreboard.id}': {scoreboard.display_name}\n"
 
 
-    def cmd_list_components(self, src: CommandSource, ctx: CommandContext):
-        pass
+    # def cmd_list_components(self, src: CommandSource, ctx: CommandContext):
+    #     pass
 
     def cmd_help(self, src:CommandSource, ctx:CommandContext):
         src.reply("To be written.\n") # TODO: Write a proper help message.
@@ -99,6 +99,8 @@ class CommandManager:
         reply = json.dumps(self.tracker_registry.serialize(), indent=4, sort_keys=True)
         src.reply(reply)
 
+    def show_config(self, src: CommandSource, ctx: CommandContext):
+        src.reply(json.dumps(self.config.serialize(), indent=4, sort_keys=True))
 
     def register_commands(self):
         # tracker creation commands
@@ -147,4 +149,5 @@ class CommandManager:
             .then(Literal("scoreboard").then(Text("scoreboard_id")))
             .then(Literal("show_raw").then(Literal("scoreboard").runs(self.cmd_showraw_scoreboard))
                   .then(Literal("tracker").runs(self.cmd_showraw_tracker)))
+            .then(Literal("debug").then(Literal("config").runs(self.show_config)))
         )

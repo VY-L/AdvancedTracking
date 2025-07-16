@@ -4,7 +4,7 @@ from mcdreforged.plugin.si.plugin_server_interface import PluginServerInterface
 from advanced_tracking.tracker import Tracker, TrackerRegistry
 from advanced_tracking.scoreboard import Scoreboard, ScoreboardRegistry
 from advanced_tracking.script_loader import ScriptLoader
-from advanced_tracking.config import Config
+from advanced_tracking.config import Config, set_config_instance
 
 from advanced_tracking.commands import CommandManager
 
@@ -68,12 +68,16 @@ def on_load(server:PluginServerInterface, prev):
     print("current path:", os.path.dirname(__file__))
     print("server path:", Path(server.get_mcdr_config().get("working_directory")).absolute())
     config = server.load_config_simple(target_class=Config, failure_policy='raise')
+    set_config_instance(config)
+    print("config:", config.serialize())
     command_manager = CommandManager(server)
+    command_manager.register_commands()
     # advanced_tracking_manager = AdvancedTrackingManager(server)
     pass
 
-def on_unload(server:PluginServerInterface, prev):
+def on_unload(server:PluginServerInterface):
     print("AdvancedTracking plugin is unloading...")
     global command_manager, config
-    command_manager.unregister_commands()
+    # command_manager.unregister_commands()
+    config = Config.get()
     server.save_config_simple(config)

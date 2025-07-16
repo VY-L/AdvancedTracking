@@ -12,7 +12,7 @@ class PermissionConfig(Serializable):
 
 class Config(Serializable):
     scoreboard_registry: ScoreboardRegistry = ScoreboardRegistry()
-    tracker_registry: TrackerRegistry = TrackerRegistry()
+    tracker_registry: TrackerRegistry= TrackerRegistry()
     @classmethod
     @functools.lru_cache
     def __get_default(cls) -> Self:
@@ -43,3 +43,7 @@ class Config(Serializable):
 
 
 _config: Optional[Config] = None
+
+def set_config_instance(cfg: Config):
+	global _config
+	_config = cfg
