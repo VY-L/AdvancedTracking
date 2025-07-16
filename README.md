@@ -48,13 +48,9 @@ For many of these repeating patters, there would be presets such as for trenches
 
 `!!at list tracker(s)` see all trackers
 
-`!!at list tracker <scoreboard_name>` see all trackers in a scoreboard
-
-`!!at list component <tracker_name>` see all components in a tracker
-
 `!!at list scoreboard(s)` see all scoreboards
 
-`!!at list scoreboard(s) <scoreboard_name>` see all trackers in a scoreboard
+[//]: # (`!!at list scoreboard&#40;s&#41; <scoreboard_name>` see all trackers in a scoreboard)
 
 Note here that you can also not write show\
 `!!at show tracker <tracker_name>` show detail of a tracker
@@ -123,6 +119,7 @@ Note here that you can also not write show\
 - better typing for list
 - write help message
 - disabe/delete trackers
+- search/matching
 
 ## Data schemes
 ### tracker structure

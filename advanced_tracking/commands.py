@@ -29,35 +29,41 @@ class CommandManager:
         self.tracker_registry = self.config.tracker_registry
         self.scoreboard_registry = self.config.scoreboard_registry
 
-    # list stuff
-
+    # region list commands
     def cmd_list_trackers(self, src: CommandSource, ctx: CommandContext):
-        tracker_list = self.tracker_registry.trackers
-        if not tracker_list:
-            src.reply("No trackers found.")
-            return
-        response = "Trackers:\n" + "\n".join((f"[{TRACKER_TYPE_DICT[tracker.type]}] {tracker.id}"
-                                              + (f": {tracker.comments}" if tracker.comments!="" else ""))
-                                             for tracker in tracker_list)
-        src.reply(response)
+        self.tracker_registry.list_trackers(src)
 
     def cmd_list_scoreboards(self, src: CommandSource, ctx: CommandContext):
-        if "scoreboard_id" not in ctx:
-            scoreboard_list = self.scoreboard_registry.scoreboards
-            if not scoreboard_list:
-                src.reply("No scoreboards found.")
-                return
-            response = "Scoreboards:\n" + "\n".join((f"{scoreboard.id}: {scoreboard.display_name}"
-                                                    + (f" ({scoreboard.comments})" if scoreboard.comments!="" else ""))
-                                                   for scoreboard in scoreboard_list)
-            src.reply(response)
-        else:
-            scoreboard = self.scoreboard_registry.get(ctx["scoreboard_id"])
-            if scoreboard is None:
-                src.reply(f"Scoreboard '{ctx['scoreboard_id']}' not found.")
-                return
-            response = f"Scoreboard '{scoreboard.id}': {scoreboard.display_name}\n"
+        self.scoreboard_registry.list_scoreboards(src)
+    # endregion
 
+    # region other show info commands
+    def cmd_show_tracker(self, src: CommandSource, ctx: CommandContext):
+        tracker = self.tracker_registry.get_tracker(ctx["tracker_id"])
+        if tracker is None:
+            src.reply(f"Tracker '{ctx['tracker_id']}' not found.")
+        else:
+            tracker.show_info(src)
+
+    def cmd_show_component(self, src: CommandSource, ctx: CommandContext):
+        tracker = self.tracker_registry.get_tracker(ctx["tracker_id"])
+        if tracker is None:
+            src.reply(f"Tracker '{ctx['tracker_id']}' not found.")
+            return
+
+        component = tracker.get_component(ctx["component_id"])
+        if component is None:
+            src.reply(f"Component '{ctx['component_id']}' not found in tracker '{ctx['tracker_id']}'.")
+        else:
+            component.show_info(src)
+
+    def cmd_show_scoreboard(self, src: CommandSource, ctx: CommandContext):
+        scoreboard = self.scoreboard_registry.get_scoreboard(ctx["scoreboard_id"])
+        if scoreboard is None:
+            src.reply(f"Scoreboard '{ctx['scoreboard_id']}' not found.")
+        else:
+            scoreboard.show_info(src)
+    # endregion
 
     # def cmd_list_components(self, src: CommandSource, ctx: CommandContext):
     #     pass
@@ -65,20 +71,19 @@ class CommandManager:
     def cmd_help(self, src:CommandSource, ctx:CommandContext):
         src.reply("To be written.\n") # TODO: Write a proper help message.
 
+    # region create trackers
     def cmd_add_ppb_tracker(self, src: CommandSource, ctx: CommandContext):
         tracker = Tracker(id=ctx["tracker_id"], type="player_place_blocks")
         self.tracker_registry.add(tracker)
 
     def cmd_add_pbb_tracker(self, src: CommandSource, ctx: CommandContext):
+        area
         tracker = Tracker(id=ctx["tracker_id"], type="player_break_blocks")
         self.tracker_registry.add(tracker)
 
-    def cmd_show_tracker(self, src: CommandSource, ctx: CommandContext):
-        tracker = self.tracker_registry.get_tracker(ctx["tracker_id"])
-        if tracker is None:
-            src.reply(f"Tracker '{ctx['tracker_id']}' not found.")
-        else:
-            tracker.show_info(src)
+    # endregion
+
+
 
 
     def cmd_add_scoreboard(self, src: CommandSource, ctx: CommandContext):
@@ -110,7 +115,8 @@ class CommandManager:
             Literal("!!at").runs(self.cmd_help)
             .then(
                 Literal("help").runs(self.cmd_help)
-            ).then(
+            )
+            .then(
                 Literal("add")
                 .then(
                     Literal("tracker")
@@ -136,17 +142,23 @@ class CommandManager:
                         .then(QuotableText("display_name").runs(self.cmd_add_scoreboard))
                     )
                 )
-            ).then(
-                Literal("list").runs(self.cmd_help)  # Placeholder for listing trackers/scoreboards
-            ).then(
-                Literal("show")
-                .then(
-                    Literal("tracker").then(Text("tracker_id").runs(self.cmd_show_tracker))
-                )
             )
-            .then(Literal("tracker").then(Text("tracker_id")))
-            .then(Literal("component").then(Text("tracker_id").then(Text("component_id"))))
-            .then(Literal("scoreboard").then(Text("scoreboard_id")))
+            .then(
+                Literal("list")
+                .then(Literal("tracker").runs(self.cmd_list_trackers))
+                .then(Literal("trackers").runs(self.cmd_list_trackers))
+                .then(Literal("scoreboard").runs(self.cmd_list_scoreboards))
+                .then(Literal("scoreboards").runs(self.cmd_list_scoreboards))
+            )
+            .then(
+                Literal("show")
+                .then(Literal("tracker").then(Text("tracker_id").runs(self.cmd_show_tracker)))
+                .then(Literal("scoreboard").then(Text("scoreboard_id").runs(self.cmd_show_scoreboard)))
+                .then(Literal("component").then(Text("tracker_id").then(Text("component_id").runs(self.cmd_show_component))))
+            )
+            .then(Literal("tracker").then(Text("tracker_id").runs(self.cmd_show_tracker)))
+            .then(Literal("component").then(Text("tracker_id").then(Text("component_id").runs(self.cmd_show_component))))
+            .then(Literal("scoreboard").then(Text("scoreboard_id").runs(self.cmd_show_scoreboard)))
             .then(Literal("show_raw").then(Literal("scoreboard").runs(self.cmd_showraw_scoreboard))
                   .then(Literal("tracker").runs(self.cmd_showraw_tracker)))
             .then(Literal("debug").then(Literal("config").runs(self.show_config)))

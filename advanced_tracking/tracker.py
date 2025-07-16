@@ -53,6 +53,12 @@ class Tracker(Serializable):
         if self.comments:
             src.reply(f"Comments: {self.comments}")
 
+    def get_component(self, component_id: str) -> Optional[TrackerComponent]:
+        for component in self.components:
+            if component.id == component_id:
+                return component
+        return None
+
 class TrackerRegistry(Serializable):
     """Registry for all trackers."""
     trackers: List[Tracker]=[]
