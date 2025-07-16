@@ -45,5 +45,5 @@ class Config(Serializable):
 _config: Optional[Config] = None
 
 def set_config_instance(cfg: Config):
-	global _config
-	_config = cfg
+    global _config
+    _config = cfg
