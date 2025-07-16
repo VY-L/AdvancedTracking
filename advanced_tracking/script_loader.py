@@ -17,7 +17,7 @@ class ScriptLoader():
         self.server: ServerInterface = server
         self.scoreboard_registry: ScoreboardRegistry = scoreboard_registry
         self.tracker_registry: TrackerRegistry = tracker_registry
-
+        self.inject_all()
     def inject_script(self):
         """
         Injects the script into the server's script directory.

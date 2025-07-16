@@ -76,17 +76,13 @@ Note here that you can also not write show\
 
 `!!at component <tracker_name> <component_name> attr <value>` change an area attribute of a component (Ex. change x_min to -1000)
 
-`!!at component <tracker_name> <component_name> cuboid <x1> <y1> <z1> <x2> <y2> <z2>` overwrite/set area of certain component by 2 opposite vertices of a cuboid
+`!!at component <tracker_name> <component_name> <x1> <y1> <z1> <x2> <y2> <z2>` overwrite/set area of certain component by 2 opposite vertices of a cuboid
 
-`!!at component <tracker_name> <component_name> rectangle <x1> <z1> <x2> <z2>` Same as above, but rectange (ignore y-value)
+[//]: # (`!!at component <tracker_name> <component_name> rectangle <x1> <z1> <x2> <z2>` Same as above, but rectange &#40;ignore y-value&#41;)
 
-`!!at component <tracker_name> <component_name> blacklist set <blacklist>` overwrite blacklist
+`!!at component <tracker_name> <component_name> list <list>` overwrite blacklist
 
-`!!at component <tracker_name> <component_name> whitelist set <whitelist>`...
-
-`!!at component <tracker_name> <component_name> blacklist add <instance>` add a block(state) to blacklist
-
-`!!at component <tracker_name> <component_name> whitelist add <instance>`...
+`!!at component <tracker_name> <component_name> list add <instance>` add a block(state) to blacklist
 
 `!!at component <tracker_name> <component_name> blacklist` set to blacklist mode
 

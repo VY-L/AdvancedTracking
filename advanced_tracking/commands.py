@@ -1,8 +1,8 @@
 import json
-from typing import Optional, Dict
+from typing import Optional, Dict, Callable, List
 
 from mcdreforged.command.builder.common import CommandContext
-from mcdreforged.command.builder.nodes.basic import Literal
+from mcdreforged.command.builder.nodes.basic import Literal, AbstractNode
 from mcdreforged.command.command_source import CommandSource
 from mcdreforged.plugin.si.plugin_server_interface import PluginServerInterface
 from mcdreforged.command.builder.nodes.arguments import Text, QuotableText, Integer
@@ -19,6 +19,8 @@ TRACKER_TYPE_DICT: Dict[str, str] = {
     "pbb": "pbb"
 }
 
+NONE_ALIASES = ["None", "none", "null", "no", "n", 'N', "-", "+"]
+
 class CommandManager:
     def __init__(self, server: PluginServerInterface):
         # if tracker_registry is None:
@@ -31,25 +33,55 @@ class CommandManager:
         self.scoreboard_registry = self.config.scoreboard_registry
         self.script_loader = ScriptLoader(self.server, self.tracker_registry, self.scoreboard_registry)
 
+    def construct_flexible_region_subtree(self, parent: AbstractNode,
+                                          exec: Callable[[CommandSource, CommandContext], None],
+                                          children: Optional[List[AbstractNode]] = None) -> None:
+        """
+        Constructs a subtree for region commands that can be used in multiple places.
+        :param exec: The function to execute when the command is run.
+        :param children: Optional children nodes to add to the subtree.
+        :return: A Literal node representing the subtree.
+        """
+        if children is None:
+            children = []
+        for name in ["x1", "y1", "z1", "x2", "y2", "z2"][::-1]:
+            int_node = Integer(name)
+            none_nodes = [Literal(alias) for alias in NONE_ALIASES]
+            if name == "z1":
+                int_node.runs(exec)
+                for none_node in none_nodes:
+                    none_node.runs(exec)
+            for child in children:
+                int_node.then(child)
+                for none_node in none_nodes:
+                    none_node.then(child)
+            children = [int_node, *none_nodes]
+        for child in children:
+            parent.then(child)
+
+
+
+        # return region_subtree
+
 
 
     # region list commands
-    def cmd_list_trackers(self, src: CommandSource, ctx: CommandContext):
+    def cmd_list_trackers(self, src: CommandSource, ctx: CommandContext) -> None:
         self.tracker_registry.list_trackers(src)
 
-    def cmd_list_scoreboards(self, src: CommandSource, ctx: CommandContext):
+    def cmd_list_scoreboards(self, src: CommandSource, ctx: CommandContext) -> None:
         self.scoreboard_registry.list_scoreboards(src)
     # endregion
 
     # region other show info commands
-    def cmd_show_tracker(self, src: CommandSource, ctx: CommandContext):
+    def cmd_show_tracker(self, src: CommandSource, ctx: CommandContext) -> None:
         tracker = self.tracker_registry.get_tracker(ctx["tracker_id"])
         if tracker is None:
             src.reply(f"Tracker '{ctx['tracker_id']}' not found.")
         else:
             tracker.show_info(src)
 
-    def cmd_show_component(self, src: CommandSource, ctx: CommandContext):
+    def cmd_show_component(self, src: CommandSource, ctx: CommandContext) -> None:
         tracker = self.tracker_registry.get_tracker(ctx["tracker_id"])
         if tracker is None:
             src.reply(f"Tracker '{ctx['tracker_id']}' not found.")
@@ -61,7 +93,7 @@ class CommandManager:
         else:
             component.show_info(src)
 
-    def cmd_show_scoreboard(self, src: CommandSource, ctx: CommandContext):
+    def cmd_show_scoreboard(self, src: CommandSource, ctx: CommandContext) -> None:
         scoreboard = self.scoreboard_registry.get_scoreboard(ctx["scoreboard_id"])
         if scoreboard is None:
             src.reply(f"Scoreboard '{ctx['scoreboard_id']}' not found.")
@@ -69,18 +101,18 @@ class CommandManager:
             scoreboard.show_info(src)
     # endregion
 
-    # def cmd_list_components(self, src: CommandSource, ctx: CommandContext):
+    # def cmd_list_components(self, src: CommandSource, ctx: CommandContext) -> None:
     #     pass
 
-    def cmd_help(self, src:CommandSource, ctx:CommandContext):
+    def cmd_help(self, src:CommandSource, ctx:CommandContext) -> None:
         src.reply("To be written.\n") # TODO: Write a proper help message.
 
     # region create trackers
-    def cmd_add_ppb_tracker(self, src: CommandSource, ctx: CommandContext):
+    def cmd_add_ppb_tracker(self, src: CommandSource, ctx: CommandContext) -> None:
         tracker = Tracker(id=ctx["tracker_id"], type="player_place_blocks")
         self.tracker_registry.add(tracker)
 
-    def cmd_add_pbb_tracker(self, src: CommandSource, ctx: CommandContext):
+    def cmd_add_pbb_tracker(self, src: CommandSource, ctx: CommandContext) -> None:
 
         tracker = Tracker(id=ctx["tracker_id"], type="player_break_blocks")
         self.tracker_registry.add(tracker)
@@ -90,31 +122,38 @@ class CommandManager:
 
 
 
-    def cmd_add_scoreboard(self, src: CommandSource, ctx: CommandContext):
+    def cmd_add_scoreboard(self, src: CommandSource, ctx: CommandContext) -> None:
         print(ctx)
         display_name = ctx.get("display_name", ctx["scoreboard_id"])
         scoreboard = Scoreboard(id=ctx["scoreboard_id"], display_name=display_name, comments=ctx.get("comments", ""))
         if "tracker_id" in ctx:
             scoreboard.add_tracker(ctx["tracker_id"])
         self.scoreboard_registry.add(scoreboard)
-    def cmd_add_component(self, src: CommandSource, ctx: CommandContext):
+    def cmd_add_component(self, src: CommandSource, ctx: CommandContext) -> None:
         pass
 
-    def cmd_showraw_scoreboard(self, src: CommandSource, ctx: CommandContext):
+    def cmd_showraw_scoreboard(self, src: CommandSource, ctx: CommandContext) -> None:
         reply = json.dumps(self.scoreboard_registry.serialize(), indent=4, sort_keys=True)
         src.reply(reply)
 
-    def cmd_showraw_tracker(self, src: CommandSource, ctx: CommandContext):
+    def cmd_showraw_tracker(self, src: CommandSource, ctx: CommandContext) -> None:
         reply = json.dumps(self.tracker_registry.serialize(), indent=4, sort_keys=True)
         src.reply(reply)
 
-    def show_config(self, src: CommandSource, ctx: CommandContext):
+    def cmd_show_config(self, src: CommandSource, ctx: CommandContext) -> None:
         src.reply(json.dumps(self.config.serialize(), indent=4, sort_keys=True))
 
-    def register_commands(self):
+    def cmd_test(self, src: CommandSource, ctx: CommandContext) -> None:
+        for key in ctx.keys():
+            src.reply(f"{key}: {ctx[key]}")
+
+    def register_commands(self) -> None:
         # tracker creation commands
         player_break_blocks_subtree = Literal("player_break_blocks").runs(self.cmd_add_pbb_tracker)
         player_place_blocks_subtree = Literal("player_place_blocks").runs(self.cmd_add_ppb_tracker)
+
+        test_tree = Literal("test").then(Literal("-").runs(self.cmd_test)).then(Integer("test_int").runs(self.cmd_test))
+
         self.server.register_command(
             Literal("!!at").runs(self.cmd_help)
             .then(
@@ -169,5 +208,6 @@ class CommandManager:
             .then(Literal("scoreboard").then(Text("scoreboard_id").runs(self.cmd_show_scoreboard)))
             .then(Literal("show_raw").then(Literal("scoreboard").runs(self.cmd_showraw_scoreboard))
                   .then(Literal("tracker").runs(self.cmd_showraw_tracker)))
-            .then(Literal("debug").then(Literal("config").runs(self.show_config)))
+            .then(Literal("debug").then(Literal("config").runs(self.cmd_show_config)))
+            .then(test_tree)
         )
