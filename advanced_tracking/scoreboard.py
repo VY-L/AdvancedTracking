@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 from typing import List, Dict, Optional, Type
 
 from mcdreforged.command.command_source import CommandSource
@@ -93,9 +94,14 @@ class ScoreboardRegistry(Serializable):
         """
         self.scoreboards = [sb for sb in self.scoreboards if sb.id != scoreboard_id]
 
+    def update_json_file(self, file_path: str|Path) -> None:
+        # add all trackers to "default group"，area would be empty
+        data = {sb.id: sb.to_script() for sb in self.scoreboards}
 
-    def to_script(self) -> Dict:
-        return {sb.id: sb.to_script() for sb in self.scoreboards}
+        with open(file_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=4)
+
+
 
     def list_scoreboards(self, src: CommandSource) -> None:
         """

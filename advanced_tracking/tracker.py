@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 from typing import Dict, Optional, List, Literal
 import types
 
@@ -67,7 +68,7 @@ class TrackerRegistry(Serializable):
         self.trackers.append(tracker)
 
 
-    def update_json_file(self, file_path: str) -> None:
+    def update_json_file(self, file_path: str|Path) -> None:
         # add all trackers to "default group"，area would be empty
         tracker_types = ["player_break_blocks", "player_place_blocks"]
         data = {"player_break_blocks":{"default_group": {"area":{}, "trackers":{}}},

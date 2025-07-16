@@ -7,6 +7,7 @@ from mcdreforged.command.command_source import CommandSource
 from mcdreforged.plugin.si.plugin_server_interface import PluginServerInterface
 from mcdreforged.command.builder.nodes.arguments import Text, QuotableText, Integer
 
+from advanced_tracking import ScriptLoader
 from advanced_tracking.config import Config
 from advanced_tracking.tracker import Tracker, TrackerRegistry
 from advanced_tracking.scoreboard import Scoreboard, ScoreboardRegistry
@@ -28,6 +29,9 @@ class CommandManager:
         self.server = server
         self.tracker_registry = self.config.tracker_registry
         self.scoreboard_registry = self.config.scoreboard_registry
+        self.script_loader = ScriptLoader(self.server, self.tracker_registry, self.scoreboard_registry)
+
+
 
     # region list commands
     def cmd_list_trackers(self, src: CommandSource, ctx: CommandContext):
@@ -77,7 +81,7 @@ class CommandManager:
         self.tracker_registry.add(tracker)
 
     def cmd_add_pbb_tracker(self, src: CommandSource, ctx: CommandContext):
-        area
+
         tracker = Tracker(id=ctx["tracker_id"], type="player_break_blocks")
         self.tracker_registry.add(tracker)
 
@@ -156,7 +160,11 @@ class CommandManager:
                 .then(Literal("scoreboard").then(Text("scoreboard_id").runs(self.cmd_show_scoreboard)))
                 .then(Literal("component").then(Text("tracker_id").then(Text("component_id").runs(self.cmd_show_component))))
             )
-            .then(Literal("tracker").then(Text("tracker_id").runs(self.cmd_show_tracker)))
+            .then(Literal("tracker").then(
+                Text("tracker_id").runs(self.cmd_show_tracker)
+                .then(Literal("add").then(Text("component_id")).runs(self.cmd_add_component))
+
+            ))
             .then(Literal("component").then(Text("tracker_id").then(Text("component_id").runs(self.cmd_show_component))))
             .then(Literal("scoreboard").then(Text("scoreboard_id").runs(self.cmd_show_scoreboard)))
             .then(Literal("show_raw").then(Literal("scoreboard").runs(self.cmd_showraw_scoreboard))

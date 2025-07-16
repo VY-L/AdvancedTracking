@@ -135,7 +135,8 @@ Note here that you can also not write show\
                 "z_max":10
             }, 
             "trackers": {
-                "tracker_id": { 
+                "tracker_id": {
+                    "mode":"union",
                     "area": {
                         "x_min":-10, 
                         "x_max":10, 
