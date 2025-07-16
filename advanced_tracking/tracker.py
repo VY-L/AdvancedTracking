@@ -6,9 +6,11 @@ import types
 from mcdreforged.command.command_source import CommandSource
 from mcdreforged.utils.serializer import Serializable
 from typing_extensions import Self
-from advanced_tracking.project_types import BlockTypes
 
-TrackerType = Literal["player_break_blocks", "player_place_blocks"]
+from advanced_tracking.project_types import BlockTypes
+from advanced_tracking.project_types import TrackerType, TrackerMode
+
+
 
 class TrackerComponent(Serializable):
     id: str
@@ -33,6 +35,7 @@ class TrackerComponent(Serializable):
 class Tracker(Serializable):
     id: str
     type: TrackerType
+    mode: TrackerMode = "union"
     # type: str
     area: Dict[str, int]={}
     components: List[TrackerComponent] = []

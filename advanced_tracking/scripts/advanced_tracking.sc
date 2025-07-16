@@ -103,7 +103,8 @@ update_block_tracker(player, block, tracker_type) -> (
                 component = tracker:'components':_;
                 if(check_block_interaction_match_component(component, player, block), (
                     increment_tracker(tracker_id, player);
-                    update_scoreboards(tracker:'scoreboards', player)
+                    update_scoreboards(tracker:'scoreboards', player);
+                    if(tracker:'mode' == 'union', break);
                 ));
             ))
         ))

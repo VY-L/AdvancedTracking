@@ -1,7 +1,9 @@
 from typing import Dict, List, Literal
 from mcdreforged.api.all import Serializable
 
+TrackerMode = Literal["union", "sum"]
 BlockTypeMode = Literal["whitelist", "blacklist", None]
+TrackerType = Literal["player_break_blocks", "player_place_blocks"]
 
 class BlockTypes(Serializable):
     mode:BlockTypeMode = None
