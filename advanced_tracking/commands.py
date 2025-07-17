@@ -11,6 +11,7 @@ from advanced_tracking import ScriptLoader
 from advanced_tracking.config import Config
 from advanced_tracking.tracker import Tracker, TrackerRegistry
 from advanced_tracking.scoreboard import Scoreboard, ScoreboardRegistry
+from advanced_tracking.utils.command_nodes import MarkingLiteral
 
 TRACKER_TYPE_DICT: Dict[str, str] = {
     "player_break_blocks": "pbb",
@@ -19,7 +20,68 @@ TRACKER_TYPE_DICT: Dict[str, str] = {
     "pbb": "pbb"
 }
 
-NONE_ALIASES = ["None", "none", "null", "no", "n", 'N', "-", "+"]
+NONE_ALIASES = ["None", "none", "null", "no", "n", 'N', '=', '.']
+
+
+def construct_flexible_region_subtree(parent: AbstractNode,
+                                      exec: Callable[[CommandSource, CommandContext], None],
+                                      children: Optional[List[AbstractNode]] = None) -> AbstractNode:
+    """
+    Constructs a subtree for region commands that can be used in multiple places.
+    :param exec: The function to execute when the command is run.
+    :param children: Optional children nodes to add to the subtree.
+    :return: A Literal node representing the subtree.
+    """
+    if children is None:
+        children = []
+    for name in ["x1", "y1", "z1", "x2", "y2", "z2"][::-1]:
+        int_node = Integer(name)
+        plus_node = MarkingLiteral("+").set_mark('+', name)
+        minus_node = MarkingLiteral("-").set_mark('-', name)
+        none_nodes = [Literal(alias) for alias in NONE_ALIASES]
+        int_node.runs(exec)
+        plus_node.runs(exec)
+        minus_node.runs(exec)
+        for none_node in none_nodes:
+            none_node.runs(exec)
+        for child in children:
+            int_node.then(child)
+            plus_node.then(child)
+            minus_node.then(child)
+            for none_node in none_nodes:
+                none_node.then(child)
+        children = [int_node, plus_node, minus_node, *none_nodes]
+    for child in children:
+        parent.then(child)
+    parent.runs(exec)
+    return parent
+
+
+def parse_area(ctx: CommandContext) -> Dict[str, int]:
+    for axis in ["x", "y", "z"]:
+        # number of bounds
+        area = {}
+        key1 = axis+"1"
+        key2 = axis+"2"
+        key_min = axis+"_min"
+        key_max = axis+"_max"
+        type1 = type(ctx[key1])
+        type2 = type(ctx[key2])
+        if type1 is int:
+            if type2 is int:
+                area[key_min] = min(ctx[key1], ctx[key2])
+                area[key_max] = max(ctx[key1], ctx[key2])
+            elif ctx[key2] == "-":
+                area[key_max] = ctx[key1]
+            else:
+                area[key_min] = ctx[key1]
+        else:
+            if ctx[key2] == "+":
+                area[key_min] = ctx[key1]
+            else:
+                area[key_max] = ctx[key1]
+    return area
+
 
 class CommandManager:
     def __init__(self, server: PluginServerInterface):
@@ -33,35 +95,7 @@ class CommandManager:
         self.scoreboard_registry = self.config.scoreboard_registry
         self.script_loader = ScriptLoader(self.server, self.tracker_registry, self.scoreboard_registry)
 
-    def construct_flexible_region_subtree(self, parent: AbstractNode,
-                                          exec: Callable[[CommandSource, CommandContext], None],
-                                          children: Optional[List[AbstractNode]] = None) -> None:
-        """
-        Constructs a subtree for region commands that can be used in multiple places.
-        :param exec: The function to execute when the command is run.
-        :param children: Optional children nodes to add to the subtree.
-        :return: A Literal node representing the subtree.
-        """
-        if children is None:
-            children = []
-        for name in ["x1", "y1", "z1", "x2", "y2", "z2"][::-1]:
-            int_node = Integer(name)
-            none_nodes = [Literal(alias) for alias in NONE_ALIASES]
-            if name == "z1":
-                int_node.runs(exec)
-                for none_node in none_nodes:
-                    none_node.runs(exec)
-            for child in children:
-                int_node.then(child)
-                for none_node in none_nodes:
-                    none_node.then(child)
-            children = [int_node, *none_nodes]
-        for child in children:
-            parent.then(child)
 
-
-
-        # return region_subtree
 
 
 
@@ -111,11 +145,12 @@ class CommandManager:
     def cmd_add_ppb_tracker(self, src: CommandSource, ctx: CommandContext) -> None:
         tracker = Tracker(id=ctx["tracker_id"], type="player_place_blocks")
         self.tracker_registry.add(tracker)
+        self.script_loader.inject_tracker_data()
 
     def cmd_add_pbb_tracker(self, src: CommandSource, ctx: CommandContext) -> None:
-
         tracker = Tracker(id=ctx["tracker_id"], type="player_break_blocks")
         self.tracker_registry.add(tracker)
+        self.script_loader.inject_tracker_data()
 
     # endregion
 

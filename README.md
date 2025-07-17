@@ -60,7 +60,7 @@ Note here that you can also not write show\
 `!!at show scoreboard <scoreboard_name>` show detail of a scoreboard
 
 
-`!!at add tracker <tracker_name> <tracker_type>` create new empty tracker
+`!!at add tracker <tracker_name> <tracker_type> [<x1> <y1> <z1> <x2> <y2> <z2>]` create new empty tracker
 
 `!!at add tracker <tracker_name> <preset_name> ...` create tracker by preset
 
