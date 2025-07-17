@@ -116,6 +116,9 @@ class ScoreboardRegistry(Serializable):
     def list_scoreboards_detailed(self, src: CommandSource) -> None:
         pass
 
+    def reset_all(self) -> None:
+        self.scoreboards = []
+
 if __name__ == "__main__":
     # Example usage
     scoreboard_registry = ScoreboardRegistry()

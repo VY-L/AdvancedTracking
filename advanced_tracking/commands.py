@@ -1,17 +1,23 @@
 import json
-from typing import Optional, Dict, Callable, List
+from typing import Optional, Dict, Callable, List, Tuple
+from typing_extensions import Self
 
 from mcdreforged.command.builder.common import CommandContext
 from mcdreforged.command.builder.nodes.basic import Literal, AbstractNode
-from mcdreforged.command.command_source import CommandSource
+from mcdreforged.command.command_source import CommandSource, PlayerCommandSource
 from mcdreforged.plugin.si.plugin_server_interface import PluginServerInterface
 from mcdreforged.command.builder.nodes.arguments import Text, QuotableText, Integer
+from mcdreforged.utils.serializer import Serializable
 
 from advanced_tracking import ScriptLoader
 from advanced_tracking.config import Config
 from advanced_tracking.tracker import Tracker, TrackerRegistry
 from advanced_tracking.scoreboard import Scoreboard, ScoreboardRegistry
 from advanced_tracking.utils.command_nodes import MarkingLiteral
+
+from time import time
+
+CONFIRM_TIME = 60
 
 TRACKER_TYPE_DICT: Dict[str, str] = {
     "player_break_blocks": "pbb",
@@ -21,7 +27,6 @@ TRACKER_TYPE_DICT: Dict[str, str] = {
 }
 
 NONE_ALIASES = ["None", "none", "null", "no", "n", 'N', '=', '.']
-
 
 def reg_flexible_region_selection(parent: AbstractNode,
                                   exec: Callable[[CommandSource, CommandContext], None],
@@ -79,8 +84,73 @@ def parse_area(ctx: CommandContext) -> Dict[str, int]:
     print("Parsed area:", area)
     return area
 
+class ConfirmCache(Serializable):
+    func: Optional[Callable[[CommandSource, CommandContext], None]] = None
+    src: Optional[CommandSource] = None
+    ctx: Optional[CommandContext] = None
+    time: float = 0.0
+
+class ConfirmCacheManager:
+    """
+    Cache for commands that require confirmation.
+    """
+    def __init__(self):
+        self._player_cache: Dict[str, ConfirmCache] = {}
+        self.console_cache: ConfirmCache = ConfirmCache()
+    def confirm(self, src: CommandSource, ctx: CommandContext) -> None:
+        """
+        Confirm a command.
+        """
+        if src.is_console:
+            if self.console_cache.func is None:
+                src.reply("No command to confirm.")
+                return
+            if time() - self.console_cache.time > CONFIRM_TIME:
+                src.reply("Confirmation time expired.")
+                self.console_cache = (None, None, None, 0)
+                return
+            self.console_cache.func(self.console_cache.src, self.console_cache.ctx)
+        elif src.is_player:
+            src: PlayerCommandSource
+            player_name = src.player
+            if player_name not in self._player_cache:
+                src.reply("No command to confirm.")
+                return
+            cache = self._player_cache[player_name]
+            if cache.func is None:
+                src.reply("No command to confirm.")
+                return
+            if time() - cache.time > CONFIRM_TIME:
+                src.reply("Confirmation time expired.")
+                del self._player_cache[player_name]
+                return
+            cache.func(cache.src, cache.ctx)
+            del self._player_cache[player_name]
+        else:
+            src.reply("Unknown command source type. Cannot confirm command. WHO ARE YOU?")
+
+
+    def register_confirmable(self, src: CommandSource, ctx: CommandContext, func: Callable[[CommandSource, CommandContext], None]) -> None:
+        if src.is_console:
+            self.console_cache.func = func
+            self.console_cache.src = src
+            self.console_cache.ctx = ctx
+            self.console_cache.time = time()
+        elif src.is_player:
+            src: PlayerCommandSource
+            player_name = src.player
+            if player_name not in self._player_cache:
+                self._player_cache[player_name] = ConfirmCache()
+            cache = self._player_cache[player_name]
+            cache.func = func
+            cache.src = src
+            cache.ctx = ctx
+            cache.time = time()
+        else:
+            src.reply("Unknown command source type. Cannot register confirmable command. WHO ARE YOU?")
 
 class CommandManager:
+
     def __init__(self, server: PluginServerInterface):
         # if tracker_registry is None:
         #     tracker_registry = TrackerRegistry()
@@ -91,9 +161,31 @@ class CommandManager:
         self.tracker_registry = self.config.tracker_registry
         self.scoreboard_registry = self.config.scoreboard_registry
         self.script_loader = ScriptLoader(self.server, self.tracker_registry, self.scoreboard_registry)
+        self.confirm_cache: ConfirmCacheManager = ConfirmCacheManager()
 
+    @staticmethod
+    def confirmable(func: Callable[['CommandManager', CommandSource, CommandContext], None])\
+            -> Callable[['CommandManager', CommandSource, CommandContext], None]:
+        """
+        Decorator to require confirmation for a command.
+        """
 
+        def wrapper(cmd_manager: Self, src: CommandSource, ctx: CommandContext) -> None:
+            src.reply("Please confirm this command by `!!at confirm` within 60 seconds.")
+            cmd_manager.confirm_cache.register_confirmable(src, ctx, lambda s, c: func(cmd_manager, s, c))
+        return wrapper
 
+    def cmd_confirm(self, src: CommandSource, ctx: CommandContext) -> None:
+        self.confirm_cache.confirm(src, ctx)
+
+    @confirmable
+    def cmd_reset_all(self, src: CommandSource, ctx: CommandContext) -> None:
+        """
+        Reset all trackers and scoreboards.
+        """
+        self.tracker_registry.reset_all()
+        self.scoreboard_registry.reset_all()
+        src.reply("All trackers and scoreboards have been reset.")
 
 
     # region list commands
@@ -179,6 +271,11 @@ class CommandManager:
     def cmd_test(self, src: CommandSource, ctx: CommandContext) -> None:
         for key in ctx.keys():
             src.reply(f"{key}: {ctx[key]}")
+        try:
+            hash(src)
+            src.reply("hashable")
+        except TypeError:
+            src.reply("not hashable")
 
     def register_commands(self) -> None:
         # tracker creation commands
@@ -243,4 +340,6 @@ class CommandManager:
                   .then(Literal("tracker").runs(self.cmd_showraw_tracker)))
             .then(Literal("debug").then(Literal("config").runs(self.cmd_show_config)))
             .then(test_tree)
+            .then(Literal("confirm").runs(self.cmd_confirm))
+            .then(Literal("reset_all").runs(self.cmd_reset_all))
         )

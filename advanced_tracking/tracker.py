@@ -96,6 +96,8 @@ class TrackerRegistry(Serializable):
         for tracker in self.trackers:
             src.reply(f"- {tracker.id} ({tracker.type})" + tracker.comments)
 
+    def reset_all(self) -> None:
+        self.trackers = []
 if __name__ == "__main__":
     # Example usage
     tracker_registry = TrackerRegistry()
