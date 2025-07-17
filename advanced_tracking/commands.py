@@ -23,15 +23,9 @@ TRACKER_TYPE_DICT: Dict[str, str] = {
 NONE_ALIASES = ["None", "none", "null", "no", "n", 'N', '=', '.']
 
 
-def construct_flexible_region_subtree(parent: AbstractNode,
-                                      exec: Callable[[CommandSource, CommandContext], None],
-                                      children: Optional[List[AbstractNode]] = None) -> AbstractNode:
-    """
-    Constructs a subtree for region commands that can be used in multiple places.
-    :param exec: The function to execute when the command is run.
-    :param children: Optional children nodes to add to the subtree.
-    :return: A Literal node representing the subtree.
-    """
+def reg_flexible_region_selection(parent: AbstractNode,
+                                  exec: Callable[[CommandSource, CommandContext], None],
+                                  children: Optional[List[AbstractNode]] = None) -> AbstractNode:
     if children is None:
         children = []
     for name in ["x1", "y1", "z1", "x2", "y2", "z2"][::-1]:
@@ -58,28 +52,31 @@ def construct_flexible_region_subtree(parent: AbstractNode,
 
 
 def parse_area(ctx: CommandContext) -> Dict[str, int]:
+    area = {}
+    print("Parsing area from context:", ctx)
     for axis in ["x", "y", "z"]:
         # number of bounds
-        area = {}
         key1 = axis+"1"
         key2 = axis+"2"
         key_min = axis+"_min"
         key_max = axis+"_max"
-        type1 = type(ctx[key1])
-        type2 = type(ctx[key2])
+        type1 = type(ctx.get(key1))
+        type2 = type(ctx.get(key2))
         if type1 is int:
             if type2 is int:
                 area[key_min] = min(ctx[key1], ctx[key2])
                 area[key_max] = max(ctx[key1], ctx[key2])
-            elif ctx[key2] == "-":
+            elif ctx.get(key2) == "-":
+                print(f"Check {key_max}, {ctx[key1]}")
                 area[key_max] = ctx[key1]
             else:
                 area[key_min] = ctx[key1]
-        else:
-            if ctx[key2] == "+":
-                area[key_min] = ctx[key1]
+        elif type2 is int:
+            if ctx.get(key1) == "+":
+                area[key_min] = ctx[key2]
             else:
-                area[key_max] = ctx[key1]
+                area[key_max] = ctx[key2]
+    print("Parsed area:", area)
     return area
 
 
@@ -143,12 +140,13 @@ class CommandManager:
 
     # region create trackers
     def cmd_add_ppb_tracker(self, src: CommandSource, ctx: CommandContext) -> None:
-        tracker = Tracker(id=ctx["tracker_id"], type="player_place_blocks")
+        tracker = Tracker(id=ctx["tracker_id"], type="player_place_blocks", area=parse_area(ctx))
         self.tracker_registry.add(tracker)
         self.script_loader.inject_tracker_data()
 
     def cmd_add_pbb_tracker(self, src: CommandSource, ctx: CommandContext) -> None:
-        tracker = Tracker(id=ctx["tracker_id"], type="player_break_blocks")
+        print("Checkpoint Call")
+        tracker = Tracker(id=ctx["tracker_id"], type="player_break_blocks", area=parse_area(ctx))
         self.tracker_registry.add(tracker)
         self.script_loader.inject_tracker_data()
 
@@ -184,8 +182,8 @@ class CommandManager:
 
     def register_commands(self) -> None:
         # tracker creation commands
-        player_break_blocks_subtree = Literal("player_break_blocks").runs(self.cmd_add_pbb_tracker)
-        player_place_blocks_subtree = Literal("player_place_blocks").runs(self.cmd_add_ppb_tracker)
+        pbb_subtree = reg_flexible_region_selection(Literal("player_break_blocks"), self.cmd_add_pbb_tracker)
+        ppb_subtree = reg_flexible_region_selection(Literal("player_place_blocks"), self.cmd_add_ppb_tracker)
 
         test_tree = Literal("test").then(Literal("-").runs(self.cmd_test)).then(Integer("test_int").runs(self.cmd_test))
 
@@ -200,11 +198,11 @@ class CommandManager:
                     Literal("tracker")
                     .then(
                         Text("tracker_id")
-                        .then(player_break_blocks_subtree)
-                        .then(Literal("pbb").redirects(player_break_blocks_subtree))
+                        .then(pbb_subtree)
+                        .then(Literal("pbb").redirects(pbb_subtree))
 
-                        .then(player_place_blocks_subtree)
-                        .then(Literal("ppb").redirects(player_place_blocks_subtree))
+                        .then(ppb_subtree)
+                        .then(Literal("ppb").redirects(ppb_subtree))
                     )
                 )
                 .then(Literal("component").then(Text("tracker_id").then(
