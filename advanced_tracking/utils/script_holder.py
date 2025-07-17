@@ -170,7 +170,7 @@ update_scoreboards(objectives, player) -> (
 __on_start() -> (
     load_trackers(global_DATA_PATH);
     load_data(global_DATA_PATH);
-    load_scoreboards(global_DATA_PATH)
+    load_scoreboards(global_DATA_PATH);
     for(player('all'), check_player_profile(_))
 );
 
