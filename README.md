@@ -66,11 +66,11 @@ Note here that you can also not write show\
 
 [//]: # (<!-- `!!at add tracker <tracker_name> preset <preset_name> ...` create tracker by preset &#40;used to support future custom presets&#41; -->)
 
-`!!at tracker <tracker_name> add <component_name>` create an empty component under a tracker
+`!!at tracker <tracker_name> add <component_name> [<x1> <y1> <z1> <x2> <y2> <z2>]` create an empty component under a tracker
 
-`!!at component <tracker_name> <component_name> create` same as above
+`!!at component <tracker_name> <component_name> create [<x1> <y1> <z1> <x2> <y2> <z2>]` same as above
 
-`!!ad add component <tracker_name> <component_name>` same as above
+`!!ad add component <tracker_name> <component_name> [<x1> <y1> <z1> <x2> <y2> <z2>]` same as above
 
 `!!at tracker <tracker_name> delete/remove` delete a tracker, will delete all data in it too, needs `!!at confirm`
 
@@ -114,9 +114,17 @@ Note here that you can also not write show\
 - scoreboard modes
 - better typing for list
 - write help message
-- disabe/delete trackers
+- disable/delete trackers
 - search/matching
-
+- delete tracker data logic
+- tracker has blacklist/whitelist
+- delete scoreboard tracker pairs logic
+- override needs check if exists
+- suggestion
+- what to confirm, check if runnable before confirm
+- undo/redo
+- more logic in blockstates (BlockType list)
+- reset tracker data
 ## Data schemes
 ### tracker structure
 #### **`trackers.json`**: 
@@ -159,7 +167,8 @@ Note here that you can also not write show\
                         }
                     }
                 }
-            }
+            }, 
+            "scoreboards": []
         }
     }
 }
@@ -183,7 +192,7 @@ Note here that you can also not write show\
         "mode": "weighted_sum", 
         "trackers": [
             {
-                "tracjer_id": "tracker_id", 
+                "tracker_id": "tracker_id", 
                 "weight":1
             }
         ]

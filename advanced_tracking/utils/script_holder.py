@@ -171,7 +171,7 @@ __on_start() -> (
     load_trackers(global_DATA_PATH);
     load_data(global_DATA_PATH);
     load_scoreboards(global_DATA_PATH);
-    for(player('all'), check_player_profile(_))
+    for(player('all'), check_player_profile(_, global_DATA_PATH))
 );
 
 __on_player_breaks_block(player, block)-> (

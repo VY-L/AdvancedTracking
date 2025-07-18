@@ -49,7 +49,7 @@ class ScriptLoader():
 
         # Save trackers
         trackers_path = self.data_dst / "trackers.json"
-        self.tracker_registry.update_json_file(trackers_path)
+        self.tracker_registry.update_json_file(trackers_path, self.scoreboard_registry.scoreboards)
 
         self.server.execute("script in advanced_tracking run load_trackers(global_DATA_PATH)")
 

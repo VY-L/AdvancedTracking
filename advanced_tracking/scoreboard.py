@@ -32,22 +32,24 @@ class Scoreboard(Serializable):
     '''
 
     id: str
-    _display_name: Optional[str] = None
+    display_name_: Optional[str] = None
     mode: str = "weighted_sum"  # or "average", "max", etc., not supported yet
     trackers: List[TrackerScoreboardConfig] = []
     comments: str = ""
 
     @property
     def display_name(self) -> str:
-        if self._display_name is None:
+        if self.display_name_ is None:
             return self.id
-        return self._display_name
+        return self.display_name_
 
-    def add_tracker(self, tracker:TrackerScoreboardConfig) -> None:
+    def add_tracker(self, tracker:Tracker|str, weight:int = 1) -> None:
         '''
         add a tracker to the scoreboard
         '''
-        self.trackers.append(tracker)
+        if isinstance(tracker, Tracker):
+            tracker = tracker.id
+        self.trackers.append(TrackerScoreboardConfig(tracker_id=tracker, weight=weight))
 
     def to_script(self)-> Dict:
         '''
@@ -71,7 +73,11 @@ class Scoreboard(Serializable):
             src.reply(f"Trackers: {', '.join([tsc.tracker_id for tsc in self.trackers])}")
         if self.comments:
             src.reply(f"Comments: {self.comments}")
-
+    def has_tracker(self, tracker_id: str) -> bool:
+        '''
+        check if the scoreboard has a tracker
+        '''
+        return any(tsc.tracker_id == tracker_id for tsc in self.trackers)
 
 
 class ScoreboardRegistry(Serializable):
@@ -79,21 +85,23 @@ class ScoreboardRegistry(Serializable):
     # def __init__(self):
     #     self.scoreboards: List[Scoreboard] = []
 
+
     def add(self, scoreboard: Scoreboard) -> None:
         self.scoreboards.append(scoreboard)
 
-    def get(self, scoreboard_id: str) -> Optional[Scoreboard]:
+    def get_scoreboard(self, scoreboard_id: str) -> Optional[Scoreboard]:
         for scoreboard in self.scoreboards:
             if scoreboard.id == scoreboard_id:
                 return scoreboard
         return None
 
-    def remove(self, scoreboard_id: str) -> None:
+    def remove(self, scoreboard_id: str) -> bool:
         """
         Remove a scoreboard by its ID.
         """
+        l = len(self.scoreboards)
         self.scoreboards = [sb for sb in self.scoreboards if sb.id != scoreboard_id]
-
+        return l != len(self.scoreboards)
     def update_json_file(self, file_path: str|Path) -> None:
         # add all trackers to "default group"，area would be empty
         data = {sb.id: sb.to_script() for sb in self.scoreboards}
@@ -121,12 +129,14 @@ class ScoreboardRegistry(Serializable):
 
 if __name__ == "__main__":
     # Example usage
+    sc = Scoreboard(id="example_scoreboard", display_name_="Example Scoreboard", comments="Example Comments")
+
     scoreboard_registry = ScoreboardRegistry()
-    scoreboard = Scoreboard(id = "example_scoreboard", display_name = "Example Scoreboard")
-    scoreboard.add_tracker(TrackerScoreboardConfig(tracker_id = "tracker1", weight = 2))
+    scoreboard = Scoreboard(id = "example_scoreboard", display_name_ = "Example Scoreboard")
+    scoreboard.add_tracker("tracker1", weight = 2)
     scoreboard_registry.add(scoreboard)
 
     print(json.dumps(scoreboard_registry.serialize(), indent=4, sort_keys=True))
     loaded_registry = ScoreboardRegistry.deserialize(scoreboard_registry.serialize())
-    print(json.dumps(loaded_registry.to_script(), indent=4, sort_keys=True))
+    # print(json.dumps(loaded_registry.to_script(), indent=4, sort_keys=True))
     # print(loaded_registry.all())
